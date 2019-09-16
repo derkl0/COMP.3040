@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -c -g -Og -Wall -Werror -ansi -pedantic
-OBJ = main.o
+OBJ = main.o Character.o Alphabet.o
 DEPS = 
 LIBS =
 EXE = foundations_kiesling
