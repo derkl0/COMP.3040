@@ -7,6 +7,18 @@
 using namespace std;
 
 void test_lexi(Alphabet alpha);
+DFA<int> charDFA(Character dfaChar) {
+  DFA<int> dfa([](int qi) { return qi == 0 || qi == 1 || qi == 2; }, 0,
+               [dfaChar](int qi, Character c) {
+                 if (c == dfaChar && qi == 0) {
+                   return 1;
+                 } else {
+                   return 2;
+                 }
+               },
+               [](int qi) { return qi == 1; });
+  return dfa;
+}
 
 int main(void) {
   Character char0(0);
@@ -56,7 +68,9 @@ int main(void) {
               },
               [](int qi) { return qi == 0; });
 
+  String epsilon(alpha);
   String test1(alpha);
+  test1.add(char1);
   String test2(alpha);
   test2.add(char0);
   String test3(alpha);
@@ -67,7 +81,7 @@ int main(void) {
   test4.add(char1);
   test4.add(char0);
 
-  cout << ex.accepts(test1) << " should be " << true << endl;
+  cout << ex.accepts(epsilon) << " should be " << true << endl;
   cout << ex.accepts(test2) << " should be " << false << endl;
   cout << ex.accepts(test3) << " should be " << true << endl;
   cout << ex.accepts(test4) << " should be " << false << endl;
@@ -84,11 +98,31 @@ int main(void) {
                      },
                      [](int qi) { return 0; });
 
-  cout << ex.accepts(test1) << " should be " << false << endl;
-  cout << ex.accepts(test2) << " should be " << false << endl;
-  cout << ex.accepts(test3) << " should be " << false << endl;
-  cout << ex.accepts(test4) << " should be " << false << endl;
+  cout << noStrings.accepts(epsilon) << " should be " << false << endl;
+  cout << noStrings.accepts(test2) << " should be " << false << endl;
+  cout << noStrings.accepts(test3) << " should be " << false << endl;
+  cout << noStrings.accepts(test4) << " should be " << false << endl;
 
+  cout << endl;
+
+  DFA<int> onlyEpsilon([](int qi) { return qi == 0 || qi == 1; }, 0,
+                       [](int qi, Character c) { return 1; },
+                       [](int qi) { return qi == 0; });
+
+  cout << onlyEpsilon.accepts(epsilon) << " should be " << true << endl;
+  cout << onlyEpsilon.accepts(test2) << " should be " << false << endl;
+  cout << onlyEpsilon.accepts(test3) << " should be " << false << endl;
+  cout << onlyEpsilon.accepts(test4) << " should be " << false << endl;
+
+  cout << endl;
+
+  DFA<int> onlyChar1 = charDFA(char1);
+
+  cout << onlyChar1.accepts(epsilon) << " should be " << false << endl;
+  cout << onlyChar1.accepts(test1) << " should be " << true << endl;
+  cout << onlyChar1.accepts(test2) << " should be " << false << endl;
+  cout << onlyChar1.accepts(test3) << " should be " << false << endl;
+  cout << onlyChar1.accepts(test4) << " should be " << false << endl;
   return 0;
 }
 
