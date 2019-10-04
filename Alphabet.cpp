@@ -28,7 +28,6 @@ String Alphabet::lexi(int n) {
     string.pushfront(at(n % length));
     n = n / length;
   }
-  cout << string << endl;
   return string;
 }
 

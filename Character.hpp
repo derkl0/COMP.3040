@@ -10,6 +10,7 @@ class Character {
   friend bool operator<(Character left, Character right);
   friend bool operator>(Character left, Character right);
   friend bool operator==(Character left, Character right);
+  friend bool operator!=(Character left, Character right);
 
  private:
   int _c;

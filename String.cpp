@@ -28,6 +28,27 @@ Character String::front() {
 }
 
 int String::length() { return _characters.size(); }
+
+bool String::operator==(String right) {
+  if (length() != right.length()) {
+    return false;
+  }
+  for (int i = 0; i < static_cast<int>(length()); i++) {
+    if (_characters[i] != right[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+Character String::operator[](int i) {
+  if (i < static_cast<int>(_characters.size())) {
+    return _characters[i];
+  } else {
+    throw "Error: Out of range";
+  }
+}
+
 ostream& operator<<(ostream& out, const String& string) {
   for (unsigned int i = 0; i < string._characters.size(); i++) {
     out << string._characters[i];

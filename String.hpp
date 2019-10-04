@@ -13,6 +13,8 @@ class String {
   Character front();
   int length();
   friend std::ostream& operator<<(std::ostream& out, const String& string);
+  Character operator[](int i);
+  bool operator==(String right);
 
  private:
   Alphabet _alpha;
