@@ -14,7 +14,6 @@ int main(void) {
   Alphabet alpha;
   alpha.insert(char0);
   alpha.insert(char1);
-  alpha.insert(char2);
   cout << alpha << endl;
   for (int i = 0; i < alpha.size(); i++) {
     cout << alpha[i] << endl;
@@ -23,7 +22,6 @@ int main(void) {
   String string(alpha);
   string.add(char0);
   string.add(char1);
-  string.add(char2);
   string.add(char1);
   string.add(char1);
   cout << string << endl;
@@ -32,5 +30,15 @@ int main(void) {
   } catch (const char* e) {
     cout << e << endl;
   }
+
+  alpha.lexi(0);
+  alpha.lexi(1);
+  alpha.lexi(2);
+  alpha.lexi(3);
+  alpha.lexi(4);
+  alpha.lexi(5);
+  alpha.lexi(6);
+  alpha.lexi(7);
+  alpha.lexi(8);
   return 0;
 }

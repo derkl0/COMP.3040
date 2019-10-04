@@ -9,6 +9,8 @@ class String {
  public:
   String(Alphabet alpha) { _alpha = alpha; }
   void add(Character c);
+  void pushfront(Character c);
+  Character front();
   int length();
   friend std::ostream& operator<<(std::ostream& out, const String& string);
 
