@@ -12,8 +12,12 @@ bool oneCharDFA();
 bool onlyEpsilon();
 bool noStrings();
 bool dfaTests();
+bool test_dfa_accepts_string();
 void init_globals();
 DFA<int> charDFA(Character dfaChar);
+
+template <typename T>
+bool isAcceptedInDFA(DFA<T> dfa, String string);
 
 Alphabet binaryAlpha;
 Alphabet alphabet;
@@ -75,6 +79,7 @@ int main(void) {
   onlyEpsilon() ? passed++ : failed++;
   noStrings() ? passed++ : failed++;
   dfaTests() ? passed++ : failed++;
+  test_dfa_accepts_string() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -463,4 +468,234 @@ bool test_lexi() {
     cout << "Failed lexi" << endl;
   }
   return failed == 0;
+}
+
+bool test_dfa_accepts_string() {
+  int passed = 0;
+  int failed = 0;
+
+  DFA<int> acceptEvenNumbers([](int qi) { return qi == 0 || qi == 1; }, 0,
+                             [](int qi, Character c) {
+                               if (c == char1) {
+                                 return 1;
+                               } else {
+                                 return 0;
+                               }
+                             },
+                             [](int qi) { return qi == 0; });
+
+  {
+    isAcceptedInDFA(acceptEvenNumbers, epsilon) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test1) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test2) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test3) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test4) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test5) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test6) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test7) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test8) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test9) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test10) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test11) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test12) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test13) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test14) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test15) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenNumbers, test16) == false ? passed++ : failed++;
+  }
+
+  DFA<int> acceptEvenLength([](int qi) { return qi == 0 || qi == 1; }, 0,
+                            [](int qi, Character c) {
+                              if (qi == 0) {
+                                return 1;
+                              } else {
+                                return 0;
+                              }
+                            },
+                            [](int qi) { return qi == 0; });
+  {
+    isAcceptedInDFA(acceptEvenLength, epsilon) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test1) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test2) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test3) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test4) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test5) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test6) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test7) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test8) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test9) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test10) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test11) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test12) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test13) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test14) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test15) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptEvenLength, test16) == true ? passed++ : failed++;
+  }
+
+  DFA<char> acceptWithJason(
+      [](char qi) {
+        return qi == '!' || qi == 'J' || qi == 'A' || qi == 'S' || qi == 'O' ||
+               qi == 'N';
+      },
+      '!',
+      [](char qi, Character c) {
+        switch (qi) {
+          case 'J':
+            return c == _a ? 'A' : '!';
+          case 'A':
+            return c == _s ? 'S' : '!';
+          case 'S':
+            return c == _o ? 'N' : '!';
+          case 'O':
+            return c == _n ? 'N' : '!';
+          case 'N':
+            return 'N';
+          default:
+            return c == _j ? 'J' : '!';
+        }
+      },
+      [](char qi) { return qi == 'N'; });
+  String jason(alphabet);
+  {
+    jason.add(_j);
+    jason.add(_a);
+    jason.add(_s);
+    jason.add(_o);
+    jason.add(_n);
+  }
+  String jasonkiesling(alphabet);
+  {
+    jasonkiesling.add(_j);
+    jasonkiesling.add(_a);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_o);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_k);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_g);
+  }
+
+  String fjasont(alphabet);
+  {
+    fjasont.add(_f);
+    fjasont.add(_j);
+    fjasont.add(_a);
+    fjasont.add(_s);
+    fjasont.add(_o);
+    fjasont.add(_n);
+    fjasont.add(_t);
+  }
+
+  String jasonjason(alphabet);
+  {
+    jasonjason.add(_j);
+    jasonjason.add(_a);
+    jasonjason.add(_s);
+    jasonjason.add(_o);
+    jasonjason.add(_n);
+    jasonjason.add(_j);
+    jasonjason.add(_a);
+    jasonjason.add(_s);
+    jasonjason.add(_o);
+    jasonjason.add(_n);
+  }
+
+  String jasonjasjason(alphabet);
+  {
+    jasonjasjason.add(_j);
+    jasonjasjason.add(_a);
+    jasonjasjason.add(_s);
+    jasonjasjason.add(_o);
+    jasonjasjason.add(_n);
+    jasonjasjason.add(_j);
+    jasonjasjason.add(_a);
+    jasonjasjason.add(_s);
+    jasonjasjason.add(_j);
+    jasonjasjason.add(_a);
+    jasonjasjason.add(_s);
+    jasonjasjason.add(_o);
+    jasonjasjason.add(_n);
+  }
+
+  String jsonkiesling(alphabet);
+  {
+    jasonkiesling.add(_j);
+    jasonkiesling.add(_a);
+    jasonkiesling.add(_o);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_k);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_g);
+  }
+
+  String jasondkiesling(alphabet);
+  {
+    jasondkiesling.add(_j);
+    jasondkiesling.add(_a);
+    jasondkiesling.add(_s);
+    jasondkiesling.add(_o);
+    jasondkiesling.add(_n);
+    jasondkiesling.add(_d);
+    jasondkiesling.add(_k);
+    jasondkiesling.add(_i);
+    jasondkiesling.add(_e);
+    jasondkiesling.add(_s);
+    jasondkiesling.add(_l);
+    jasondkiesling.add(_i);
+    jasondkiesling.add(_e);
+    jasondkiesling.add(_s);
+    jasondkiesling.add(_l);
+    jasondkiesling.add(_i);
+    jasondkiesling.add(_n);
+    jasondkiesling.add(_g);
+  }
+
+  {
+    isAcceptedInDFA(acceptWithJason, jason) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptWithJason, jasonkiesling) == true ? passed++
+                                                            : failed++;
+    isAcceptedInDFA(acceptWithJason, fjasont) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptWithJason, jasonjason) == true ? passed++ : failed++;
+    isAcceptedInDFA(acceptWithJason, jasonjasjason) == true ? passed++
+                                                            : failed++;
+    isAcceptedInDFA(acceptWithJason, jasondkiesling) == true ? passed++
+                                                             : failed++;
+
+    isAcceptedInDFA(acceptWithJason, jsonkiesling) == false ? passed++
+                                                            : failed++;
+    isAcceptedInDFA(acceptWithJason, epsilon) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptWithJason, test1) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptWithJason, test2) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptWithJason, test3) == false ? passed++ : failed++;
+    isAcceptedInDFA(acceptWithJason, test4) == false ? passed++ : failed++;
+  }
+
+  if (failed != 0) {
+    cout << "Failed " << failed << "DFA accepts string tests" << endl;
+  }
+  return failed == 0;
+}
+
+template <typename T>
+bool isAcceptedInDFA(DFA<T> dfa, String string) {
+  return dfa.accepts(string);
 }
