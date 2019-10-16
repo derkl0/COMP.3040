@@ -891,6 +891,23 @@ bool test_find_strings() {
     failed++;
   }
 
+  DFA<int> acceptNothing([](int qi) { return qi == 0; }, 0,
+                         [](int qi, Character c) { return 0; },
+                         [](int qi) { return 0; });
+  string = find_string(acceptNothing, binaryAlpha);
+  String answer3(binaryAlpha);
+  if (string.length() == answer3.length()) {
+    for (int i = 0; i < string.length(); i++) {
+      if (string[i] != answer3[i]) {
+        failed++;
+        break;
+      }
+    }
+    passed++;
+  } else {
+    failed++;
+  }
+
   if (failed != 0) {
     cout << "Failed " << failed << " tests to find string" << endl;
   }
