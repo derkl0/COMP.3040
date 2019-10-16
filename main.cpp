@@ -1,5 +1,7 @@
 #include <functional>
 #include <iostream>
+#include <utility>
+#include <vector>
 #include "Alphabet.hpp"
 #include "Character.hpp"
 #include "DFA.hpp"
@@ -13,11 +15,17 @@ bool onlyEpsilon();
 bool noStrings();
 bool dfaTests();
 bool test_dfa_accepts_string();
+bool test_accepted_states();
+
 void init_globals();
+
 DFA<int> charDFA(Character dfaChar);
 
 template <typename T>
-bool isAcceptedInDFA(DFA<T> dfa, String string);
+bool is_accepted_in_dfa(DFA<T> dfa, String string);
+
+template <typename T>
+vector<pair<T, Character>> accepted_states(DFA<T> dfa, String string);
 
 Alphabet binaryAlpha;
 Alphabet alphabet;
@@ -80,6 +88,7 @@ int main(void) {
   noStrings() ? passed++ : failed++;
   dfaTests() ? passed++ : failed++;
   test_dfa_accepts_string() ? passed++ : failed++;
+  test_accepted_states() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -485,23 +494,28 @@ bool test_dfa_accepts_string() {
                              [](int qi) { return qi == 0; });
 
   {
-    isAcceptedInDFA(acceptEvenNumbers, epsilon) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test1) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test2) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test3) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test4) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test5) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test6) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test7) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test8) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test9) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test10) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test11) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test12) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test13) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test14) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test15) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenNumbers, test16) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, epsilon) == true ? passed++
+                                                           : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test1) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test2) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test3) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test4) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test5) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test6) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test7) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test8) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test9) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test10) == false ? passed++
+                                                           : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test11) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test12) == false ? passed++
+                                                           : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test13) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test14) == false ? passed++
+                                                           : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test15) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenNumbers, test16) == false ? passed++
+                                                           : failed++;
   }
 
   DFA<int> acceptEvenLength([](int qi) { return qi == 0 || qi == 1; }, 0,
@@ -514,23 +528,23 @@ bool test_dfa_accepts_string() {
                             },
                             [](int qi) { return qi == 0; });
   {
-    isAcceptedInDFA(acceptEvenLength, epsilon) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test1) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test2) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test3) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test4) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test5) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test6) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test7) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test8) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test9) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test10) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test11) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test12) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test13) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test14) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test15) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptEvenLength, test16) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, epsilon) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test1) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test2) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test3) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test4) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test5) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test6) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test7) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test8) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test9) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test10) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test11) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test12) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test13) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test14) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test15) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptEvenLength, test16) == true ? passed++ : failed++;
   }
 
   DFA<char> acceptWithJason(
@@ -670,23 +684,24 @@ bool test_dfa_accepts_string() {
   }
 
   {
-    isAcceptedInDFA(acceptWithJason, jason) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptWithJason, jasonkiesling) == true ? passed++
+    is_accepted_in_dfa(acceptWithJason, jason) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptWithJason, jasonkiesling) == true ? passed++
+                                                               : failed++;
+    is_accepted_in_dfa(acceptWithJason, fjasont) == true ? passed++ : failed++;
+    is_accepted_in_dfa(acceptWithJason, jasonjason) == true ? passed++
                                                             : failed++;
-    isAcceptedInDFA(acceptWithJason, fjasont) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptWithJason, jasonjason) == true ? passed++ : failed++;
-    isAcceptedInDFA(acceptWithJason, jasonjasjason) == true ? passed++
-                                                            : failed++;
-    isAcceptedInDFA(acceptWithJason, jasondkiesling) == true ? passed++
-                                                             : failed++;
+    is_accepted_in_dfa(acceptWithJason, jasonjasjason) == true ? passed++
+                                                               : failed++;
+    is_accepted_in_dfa(acceptWithJason, jasondkiesling) == true ? passed++
+                                                                : failed++;
 
-    isAcceptedInDFA(acceptWithJason, jsonkiesling) == false ? passed++
-                                                            : failed++;
-    isAcceptedInDFA(acceptWithJason, epsilon) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptWithJason, test1) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptWithJason, test2) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptWithJason, test3) == false ? passed++ : failed++;
-    isAcceptedInDFA(acceptWithJason, test4) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptWithJason, jsonkiesling) == false ? passed++
+                                                               : failed++;
+    is_accepted_in_dfa(acceptWithJason, epsilon) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptWithJason, test1) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptWithJason, test2) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptWithJason, test3) == false ? passed++ : failed++;
+    is_accepted_in_dfa(acceptWithJason, test4) == false ? passed++ : failed++;
   }
 
   if (failed != 0) {
@@ -696,6 +711,109 @@ bool test_dfa_accepts_string() {
 }
 
 template <typename T>
-bool isAcceptedInDFA(DFA<T> dfa, String string) {
+bool is_accepted_in_dfa(DFA<T> dfa, String string) {
   return dfa.accepts(string);
+}
+
+bool test_accepted_states() {
+  int passed = 0;
+  int failed = 0;
+  DFA<int> acceptEvenNumbers([](int qi) { return qi == 0 || qi == 1; }, 0,
+                             [](int qi, Character c) {
+                               if (c == char1) {
+                                 return 1;
+                               } else {
+                                 return 0;
+                               }
+                             },
+                             [](int qi) { return qi == 0; });
+
+  vector<pair<int, Character>> result =
+      acceptEvenNumbers.accepts_with_states(epsilon);
+  vector<pair<int, Character>> answer;
+  if (result.size() == answer.size()) {
+    for (int i = 0; i < static_cast<int>(result.size()); i++) {
+      if (result[i].first != answer[i].first ||
+          result[i].second != answer[i].second) {
+        failed++;
+        break;
+      }
+    }
+    passed++;
+  }
+
+  result = acceptEvenNumbers.accepts_with_states(test1);
+  answer.push_back(pair<int, Character>(0, char0));
+  if (result.size() == answer.size()) {
+    for (int i = 0; i < static_cast<int>(result.size()); i++) {
+      if (result[i].first != answer[i].first ||
+          result[i].second != answer[i].second) {
+        failed++;
+        break;
+      }
+    }
+    passed++;
+  } else {
+    failed++;
+  }
+
+  answer.clear();
+  result = acceptEvenNumbers.accepts_with_states(test2);
+  answer.push_back(pair<int, Character>(1, char1));
+  if (result.size() == answer.size()) {
+    for (int i = 0; i < static_cast<int>(result.size()); i++) {
+      if (result[i].first != answer[i].first ||
+          result[i].second != answer[i].second) {
+        failed++;
+        break;
+      }
+    }
+    passed++;
+  } else {
+    failed++;
+  }
+
+  answer.clear();
+  result = acceptEvenNumbers.accepts_with_states(test3);
+  answer.push_back(pair<int, Character>(0, char0));
+  answer.push_back(pair<int, Character>(0, char0));
+  if (result.size() == answer.size()) {
+    for (int i = 0; i < static_cast<int>(result.size()); i++) {
+      if (result[i].first != answer[i].first ||
+          result[i].second != answer[i].second) {
+        failed++;
+        break;
+      }
+    }
+    passed++;
+  } else {
+    failed++;
+  }
+
+  answer.clear();
+  result = acceptEvenNumbers.accepts_with_states(test4);
+  answer.push_back(pair<int, Character>(0, char0));
+  answer.push_back(pair<int, Character>(1, char1));
+  if (result.size() == answer.size()) {
+    for (int i = 0; i < static_cast<int>(result.size()); i++) {
+      if (result[i].first != answer[i].first ||
+          result[i].second != answer[i].second) {
+        failed++;
+        break;
+      }
+    }
+    passed++;
+  } else {
+    failed++;
+  }
+
+  if (failed != 0) {
+    cout << "Failed " << failed << " tests with accepted state pairs" << endl;
+  }
+  return failed == 0;
+}
+
+template <typename T>
+vector<pair<T, Character>> accepted_states(DFA<T> dfa, String string) {
+  return dfa.accepts_with_states(dfa, string);
 }
