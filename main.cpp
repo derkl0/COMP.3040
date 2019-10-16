@@ -19,6 +19,7 @@ bool test_accepted_states();
 bool test_find_strings();
 bool test_inverse_dfa();
 bool test_union_dfa();
+bool test_intersect_dfa();
 
 void init_globals();
 
@@ -38,6 +39,9 @@ DFA<T> inverse_dfa(DFA<T> dfa);
 
 template <typename T1, typename T2>
 DFA<pair<T1, T2>> union_dfa(DFA<T1> dfa1, DFA<T2> dfa2);
+
+template <typename T1, typename T2>
+DFA<pair<T1, T2>> intersect_dfa(DFA<T1> dfa1, DFA<T2> dfa2);
 
 Alphabet binaryAlpha;
 Alphabet alphabet;
@@ -104,6 +108,7 @@ int main(void) {
   test_find_strings() ? passed++ : failed++;
   test_inverse_dfa() ? passed++ : failed++;
   test_union_dfa() ? passed++ : failed++;
+  test_intersect_dfa() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -1347,6 +1352,197 @@ DFA<pair<T1, T2>> union_dfa(DFA<T1> dfa1, DFA<T2> dfa2) {
       };
   function<bool(pair<T1, T2>)> F = [dfa1, dfa2](pair<T1, T2> qi) {
     return dfa1.F(qi.first) || dfa2.F(qi.second);
+  };
+  DFA<pair<T1, T2>> returnDFA(Q, q0, Delta, F);
+  return returnDFA;
+}
+
+bool test_intersect_dfa() {
+  int failed = 0;
+  int passed = 0;
+
+  DFA<int> acceptEvenNumbers([](int qi) { return qi == 0 || qi == 1; }, 0,
+                             [](int qi, Character c) {
+                               if (c == char1) {
+                                 return 1;
+                               } else {
+                                 return 0;
+                               }
+                             },
+                             [](int qi) { return qi == 0; });
+
+  DFA<int> acceptEvenLength([](int qi) { return qi == 0 || qi == 1; }, 0,
+                            [](int qi, Character c) {
+                              if (qi == 0) {
+                                return 1;
+                              } else {
+                                return 0;
+                              }
+                            },
+                            [](int qi) { return qi == 0; });
+
+  DFA<pair<int, int>> intersectDFA =
+      intersect_dfa(acceptEvenNumbers, acceptEvenLength);
+
+  {
+    intersectDFA.accepts(epsilon) == true ? passed++ : failed++;
+    intersectDFA.accepts(test1) == false ? passed++ : failed++;
+    intersectDFA.accepts(test2) == false ? passed++ : failed++;
+    intersectDFA.accepts(test3) == true ? passed++ : failed++;
+    intersectDFA.accepts(test4) == false ? passed++ : failed++;
+    intersectDFA.accepts(test5) == true ? passed++ : failed++;
+    intersectDFA.accepts(test6) == false ? passed++ : failed++;
+    intersectDFA.accepts(test7) == false ? passed++ : failed++;
+    intersectDFA.accepts(test8) == false ? passed++ : failed++;
+    intersectDFA.accepts(test9) == false ? passed++ : failed++;
+    intersectDFA.accepts(test10) == false ? passed++ : failed++;
+    intersectDFA.accepts(test11) == false ? passed++ : failed++;
+    intersectDFA.accepts(test12) == false ? passed++ : failed++;
+    intersectDFA.accepts(test13) == false ? passed++ : failed++;
+    intersectDFA.accepts(test14) == false ? passed++ : failed++;
+    intersectDFA.accepts(test15) == true ? passed++ : failed++;
+    intersectDFA.accepts(test16) == false ? passed++ : failed++;
+  }
+
+  DFA<char> acceptWithJason(
+      [](char qi) {
+        return qi == '!' || qi == 'J' || qi == 'A' || qi == 'S' || qi == 'O' ||
+               qi == 'N';
+      },
+      '!',
+      [](char qi, Character c) {
+        switch (qi) {
+          case 'J':
+            return c == _a ? 'A' : '!';
+          case 'A':
+            return c == _s ? 'S' : '!';
+          case 'S':
+            return c == _o ? 'O' : '!';
+          case 'O':
+            return c == _n ? 'N' : '!';
+          case 'N':
+            return 'N';
+          default:
+            return c == _j ? 'J' : '!';
+        }
+      },
+      [](char qi) { return qi == 'N'; });
+
+  DFA<char> acceptWithJay(
+      [](char qi) { return qi == '!' || qi == 'J' || qi == 'A' || qi == 'Y'; },
+      '!',
+      [](char qi, Character c) {
+        switch (qi) {
+          case 'J':
+            return c == _a ? 'A' : '!';
+          case 'A':
+            return c == _y ? 'Y' : '!';
+          case 'Y':
+            return 'Y';
+          default:
+            return c == _j ? 'J' : '!';
+        }
+      },
+      [](char qi) { return qi == 'Y'; });
+  String jason(alphabet);
+  {
+    jason.add(_j);
+    jason.add(_a);
+    jason.add(_s);
+    jason.add(_o);
+    jason.add(_n);
+  }
+  String jay(alphabet);
+  {
+    jay.add(_j);
+    jay.add(_a);
+    jay.add(_y);
+  }
+  String jasonkiesling(alphabet);
+  {
+    jasonkiesling.add(_j);
+    jasonkiesling.add(_a);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_o);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_k);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_g);
+  }
+
+  String jayjason(alphabet);
+  {
+    jayjason.add(_j);
+    jayjason.add(_a);
+    jayjason.add(_y);
+    jayjason.add(_j);
+    jayjason.add(_a);
+    jayjason.add(_s);
+    jayjason.add(_o);
+    jayjason.add(_n);
+  }
+
+  String jsonkiesling(alphabet);
+  {
+    jasonkiesling.add(_j);
+    jasonkiesling.add(_a);
+    jasonkiesling.add(_o);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_k);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_g);
+  }
+
+  DFA<pair<char, char>> intersectDFA2 =
+      intersect_dfa(acceptWithJason, acceptWithJay);
+
+  {
+    intersectDFA2.accepts(jason) == false ? passed++ : failed++;
+    intersectDFA2.accepts(jay) == false ? passed++ : failed++;
+    intersectDFA2.accepts(jasonkiesling) == false ? passed++ : failed++;
+    intersectDFA2.accepts(jayjason) == true ? passed++ : failed++;
+    intersectDFA2.accepts(jsonkiesling) == false ? passed++ : failed++;
+  }
+
+  if (failed != 0) {
+    cout << "Failed " << failed << " DFA inverse" << endl;
+  }
+  return failed == 0;
+}
+
+template <typename T1, typename T2>
+DFA<pair<T1, T2>> intersect_dfa(DFA<T1> dfa1, DFA<T2> dfa2) {
+  function<bool(pair<T1, T2>)> Q = [dfa1, dfa2](pair<T1, T2> qi) {
+    return dfa1.Q(qi.first) || dfa2.Q(qi.second);
+  };
+  pair<T1, T2> q0(dfa1.q0, dfa2.q0);
+  function<pair<T1, T2>(pair<T1, T2>, Character)> Delta =
+      [dfa1, dfa2](pair<T1, T2> qi, Character c) {
+        T1 qi_1 = dfa1.Delta(qi.first, c);
+        T2 qi_2 = dfa2.Delta(qi.second, c);
+        pair<T1, T2> returnPair(qi_1, qi_2);
+        return returnPair;
+      };
+  function<bool(pair<T1, T2>)> F = [dfa1, dfa2](pair<T1, T2> qi) {
+    return dfa1.F(qi.first) && dfa2.F(qi.second);
   };
   DFA<pair<T1, T2>> returnDFA(Q, q0, Delta, F);
   return returnDFA;
