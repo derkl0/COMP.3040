@@ -37,7 +37,6 @@ class DFA {
     auto len = s.length();
     auto qi = q0;
     auto i = 0;
-    // v.push_back(pair<State, Character>(qi, s[i]));
     while (i < len) {
       qi = Delta(qi, s[i]);
       v.push_back(pair<State, Character>(qi, s[i]));
