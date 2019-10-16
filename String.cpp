@@ -19,6 +19,14 @@ void String::pushfront(Character c) {
   }
 }
 
+void String::pop_back() {
+  if (_characters.size() > 0) {
+    _characters.pop_back();
+  } else {
+    throw "Error: Out of range";
+  }
+}
+
 Character String::front() {
   if (_characters.size() > 0) {
     return _characters[0];
@@ -51,7 +59,7 @@ Character String::operator[](int i) {
 
 ostream& operator<<(ostream& out, const String& string) {
   for (unsigned int i = 0; i < string._characters.size(); i++) {
-    out << string._characters[i];
+    out << string._characters[i] << " ";
   }
   return out;
 }

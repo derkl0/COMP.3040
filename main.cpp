@@ -16,6 +16,7 @@ bool noStrings();
 bool dfaTests();
 bool test_dfa_accepts_string();
 bool test_accepted_states();
+bool test_find_strings();
 
 void init_globals();
 
@@ -26,6 +27,9 @@ bool is_accepted_in_dfa(DFA<T> dfa, String string);
 
 template <typename T>
 vector<pair<T, Character>> accepted_states(DFA<T> dfa, String string);
+
+template <typename T>
+String find_string(DFA<T> dfa, Alphabet alpha);
 
 Alphabet binaryAlpha;
 Alphabet alphabet;
@@ -89,6 +93,7 @@ int main(void) {
   dfaTests() ? passed++ : failed++;
   test_dfa_accepts_string() ? passed++ : failed++;
   test_accepted_states() ? passed++ : failed++;
+  test_find_strings() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -294,7 +299,7 @@ bool dfaTests() {
           case 'A':
             return c == _s ? 'S' : '!';
           case 'S':
-            return c == _o ? 'N' : '!';
+            return c == _o ? 'O' : '!';
           case 'O':
             return c == _n ? 'N' : '!';
           case 'N':
@@ -560,7 +565,7 @@ bool test_dfa_accepts_string() {
           case 'A':
             return c == _s ? 'S' : '!';
           case 'S':
-            return c == _o ? 'N' : '!';
+            return c == _o ? 'O' : '!';
           case 'O':
             return c == _n ? 'N' : '!';
           case 'N':
@@ -816,4 +821,83 @@ bool test_accepted_states() {
 template <typename T>
 vector<pair<T, Character>> accepted_states(DFA<T> dfa, String string) {
   return dfa.accepts_with_states(dfa, string);
+}
+
+bool test_find_strings() {
+  int passed = 0;
+  int failed = 0;
+  DFA<int> acceptEvenNumbers([](int qi) { return qi == 0 || qi == 1; }, 0,
+                             [](int qi, Character c) {
+                               if (c == char1) {
+                                 return 1;
+                               } else {
+                                 return 0;
+                               }
+                             },
+                             [](int qi) { return qi == 0; });
+  String string = find_string(acceptEvenNumbers, binaryAlpha);
+  String answer(binaryAlpha);
+  if (string.length() == answer.length()) {
+    for (int i = 0; i < string.length(); i++) {
+      if (string[i] != answer[i]) {
+        failed++;
+        break;
+      }
+    }
+    passed++;
+  } else {
+    failed++;
+  }
+
+  DFA<char> acceptWithJason(
+      [](char qi) {
+        return qi == '!' || qi == 'J' || qi == 'A' || qi == 'S' || qi == 'O' ||
+               qi == 'N';
+      },
+      '!',
+      [](char qi, Character c) {
+        switch (qi) {
+          case 'J':
+            return c == _a ? 'A' : '!';
+          case 'A':
+            return c == _s ? 'S' : '!';
+          case 'S':
+            return c == _o ? 'O' : '!';
+          case 'O':
+            return c == _n ? 'N' : '!';
+          case 'N':
+            return 'N';
+          default:
+            return c == _j ? 'J' : '!';
+        }
+      },
+      [](char qi) { return qi == 'N'; });
+  String answer2(alphabet);
+  answer2.add(_j);
+  answer2.add(_a);
+  answer2.add(_s);
+  answer2.add(_o);
+  answer2.add(_n);
+  string = find_string(acceptWithJason, alphabet);
+  if (string.length() == answer2.length()) {
+    for (int i = 0; i < string.length(); i++) {
+      if (string[i] != answer2[i]) {
+        failed++;
+        break;
+      }
+    }
+    passed++;
+  } else {
+    failed++;
+  }
+
+  if (failed != 0) {
+    cout << "Failed " << failed << " tests to find string" << endl;
+  }
+  return failed == 0;
+}
+
+template <typename T>
+String find_string(DFA<T> dfa, Alphabet alpha) {
+  return dfa.find_string(alpha);
 }

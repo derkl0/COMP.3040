@@ -10,6 +10,7 @@ class String {
   String(Alphabet alpha) { _alpha = alpha; }
   void add(Character c);
   void pushfront(Character c);
+  void pop_back();
   Character front();
   int length();
   friend std::ostream& operator<<(std::ostream& out, const String& string);
