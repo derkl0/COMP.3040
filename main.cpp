@@ -17,6 +17,7 @@ bool dfaTests();
 bool test_dfa_accepts_string();
 bool test_accepted_states();
 bool test_find_strings();
+bool test_inverse_dfa();
 
 void init_globals();
 
@@ -30,6 +31,9 @@ vector<pair<T, Character>> accepted_states(DFA<T> dfa, String string);
 
 template <typename T>
 String find_string(DFA<T> dfa, Alphabet alpha);
+
+template <typename T>
+DFA<T> inverse_dfa(DFA<T> dfa);
 
 Alphabet binaryAlpha;
 Alphabet alphabet;
@@ -94,6 +98,7 @@ int main(void) {
   test_dfa_accepts_string() ? passed++ : failed++;
   test_accepted_states() ? passed++ : failed++;
   test_find_strings() ? passed++ : failed++;
+  test_inverse_dfa() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -917,4 +922,238 @@ bool test_find_strings() {
 template <typename T>
 String find_string(DFA<T> dfa, Alphabet alpha) {
   return dfa.find_string(alpha);
+}
+
+bool test_inverse_dfa() {
+  int failed = 0;
+  int passed = 0;
+
+  DFA<int> acceptEvenNumbers([](int qi) { return qi == 0 || qi == 1; }, 0,
+                             [](int qi, Character c) {
+                               if (c == char1) {
+                                 return 1;
+                               } else {
+                                 return 0;
+                               }
+                             },
+                             [](int qi) { return qi == 0; });
+
+  {
+    DFA<int> acceptEvenNumbersInverse = inverse_dfa(acceptEvenNumbers);
+    acceptEvenNumbersInverse.accepts(epsilon) == false ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test1) == false ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test2) == true ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test3) == false ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test4) == true ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test5) == false ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test6) == true ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test7) == false ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test8) == true ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test9) == false ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test10) == true ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test11) == false ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test12) == true ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test13) == false ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test14) == true ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test15) == false ? passed++ : failed++;
+    acceptEvenNumbersInverse.accepts(test16) == true ? passed++ : failed++;
+  }
+
+  DFA<int> acceptEvenLength([](int qi) { return qi == 0 || qi == 1; }, 0,
+                            [](int qi, Character c) {
+                              if (qi == 0) {
+                                return 1;
+                              } else {
+                                return 0;
+                              }
+                            },
+                            [](int qi) { return qi == 0; });
+  {
+    DFA<int> acceptEvenLengthInverse = inverse_dfa(acceptEvenLength);
+    acceptEvenLengthInverse.accepts(epsilon) == false ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test1) == true ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test2) == true ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test3) == false ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test4) == false ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test5) == false ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test6) == false ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test7) == true ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test8) == true ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test9) == true ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test10) == true ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test11) == true ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test12) == true ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test13) == true ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test14) == true ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test15) == false ? passed++ : failed++;
+    acceptEvenLengthInverse.accepts(test16) == false ? passed++ : failed++;
+  }
+
+  DFA<char> acceptWithJason(
+      [](char qi) {
+        return qi == '!' || qi == 'J' || qi == 'A' || qi == 'S' || qi == 'O' ||
+               qi == 'N';
+      },
+      '!',
+      [](char qi, Character c) {
+        switch (qi) {
+          case 'J':
+            return c == _a ? 'A' : '!';
+          case 'A':
+            return c == _s ? 'S' : '!';
+          case 'S':
+            return c == _o ? 'O' : '!';
+          case 'O':
+            return c == _n ? 'N' : '!';
+          case 'N':
+            return 'N';
+          default:
+            return c == _j ? 'J' : '!';
+        }
+      },
+      [](char qi) { return qi == 'N'; });
+  DFA<char> acceptWithJasonInverse = inverse_dfa(acceptWithJason);
+  String jason(alphabet);
+  {
+    jason.add(_j);
+    jason.add(_a);
+    jason.add(_s);
+    jason.add(_o);
+    jason.add(_n);
+  }
+  String jasonkiesling(alphabet);
+  {
+    jasonkiesling.add(_j);
+    jasonkiesling.add(_a);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_o);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_k);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_g);
+  }
+
+  String fjasont(alphabet);
+  {
+    fjasont.add(_f);
+    fjasont.add(_j);
+    fjasont.add(_a);
+    fjasont.add(_s);
+    fjasont.add(_o);
+    fjasont.add(_n);
+    fjasont.add(_t);
+  }
+
+  String jasonjason(alphabet);
+  {
+    jasonjason.add(_j);
+    jasonjason.add(_a);
+    jasonjason.add(_s);
+    jasonjason.add(_o);
+    jasonjason.add(_n);
+    jasonjason.add(_j);
+    jasonjason.add(_a);
+    jasonjason.add(_s);
+    jasonjason.add(_o);
+    jasonjason.add(_n);
+  }
+
+  String jasonjasjason(alphabet);
+  {
+    jasonjasjason.add(_j);
+    jasonjasjason.add(_a);
+    jasonjasjason.add(_s);
+    jasonjasjason.add(_o);
+    jasonjasjason.add(_n);
+    jasonjasjason.add(_j);
+    jasonjasjason.add(_a);
+    jasonjasjason.add(_s);
+    jasonjasjason.add(_j);
+    jasonjasjason.add(_a);
+    jasonjasjason.add(_s);
+    jasonjasjason.add(_o);
+    jasonjasjason.add(_n);
+  }
+
+  String jsonkiesling(alphabet);
+  {
+    jasonkiesling.add(_j);
+    jasonkiesling.add(_a);
+    jasonkiesling.add(_o);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_k);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_e);
+    jasonkiesling.add(_s);
+    jasonkiesling.add(_l);
+    jasonkiesling.add(_i);
+    jasonkiesling.add(_n);
+    jasonkiesling.add(_g);
+  }
+
+  String jasondkiesling(alphabet);
+  {
+    jasondkiesling.add(_j);
+    jasondkiesling.add(_a);
+    jasondkiesling.add(_s);
+    jasondkiesling.add(_o);
+    jasondkiesling.add(_n);
+    jasondkiesling.add(_d);
+    jasondkiesling.add(_k);
+    jasondkiesling.add(_i);
+    jasondkiesling.add(_e);
+    jasondkiesling.add(_s);
+    jasondkiesling.add(_l);
+    jasondkiesling.add(_i);
+    jasondkiesling.add(_e);
+    jasondkiesling.add(_s);
+    jasondkiesling.add(_l);
+    jasondkiesling.add(_i);
+    jasondkiesling.add(_n);
+    jasondkiesling.add(_g);
+  }
+
+  {
+    acceptWithJasonInverse.accepts(jason) == false ? passed++ : failed++;
+    acceptWithJasonInverse.accepts(jasonkiesling) == false ? passed++
+                                                           : failed++;
+    acceptWithJasonInverse.accepts(fjasont) == false ? passed++ : failed++;
+    acceptWithJasonInverse.accepts(jasonjason) == false ? passed++ : failed++;
+    acceptWithJasonInverse.accepts(jasonjasjason) == false ? passed++
+                                                           : failed++;
+    acceptWithJasonInverse.accepts(jasondkiesling) == false ? passed++
+                                                            : failed++;
+
+    acceptWithJasonInverse.accepts(jsonkiesling) == true ? passed++ : failed++;
+    acceptWithJasonInverse.accepts(epsilon) == true ? passed++ : failed++;
+    acceptWithJasonInverse.accepts(test1) == true ? passed++ : failed++;
+    acceptWithJasonInverse.accepts(test2) == true ? passed++ : failed++;
+    acceptWithJasonInverse.accepts(test3) == true ? passed++ : failed++;
+    acceptWithJasonInverse.accepts(test4) == true ? passed++ : failed++;
+  }
+
+  if (failed != 0) {
+    cout << "Failed " << failed << "DFA inverse" << endl;
+  }
+  return failed == 0;
+}
+
+template <typename T>
+DFA<T> inverse_dfa(DFA<T> dfa) {
+  function<bool(T)> Fprime = [dfa](T qi) { return !dfa.F(qi); };
+  DFA<T> returnDFA(dfa.Q, dfa.q0, dfa.Delta, Fprime);
+  return returnDFA;
 }
