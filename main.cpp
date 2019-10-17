@@ -20,6 +20,7 @@ bool test_find_strings();
 bool test_inverse_dfa();
 bool test_union_dfa();
 bool test_intersect_dfa();
+bool test_subset_dfa();
 
 void init_globals();
 
@@ -42,6 +43,9 @@ DFA<pair<T1, T2>> union_dfa(DFA<T1> dfa1, DFA<T2> dfa2);
 
 template <typename T1, typename T2>
 DFA<pair<T1, T2>> intersect_dfa(DFA<T1> dfa1, DFA<T2> dfa2);
+
+template <typename T1, typename T2>
+bool subset_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha);
 
 Alphabet binaryAlpha;
 Alphabet alphabet;
@@ -109,6 +113,7 @@ int main(void) {
   test_inverse_dfa() ? passed++ : failed++;
   test_union_dfa() ? passed++ : failed++;
   test_intersect_dfa() ? passed++ : failed++;
+  test_subset_dfa() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -1546,4 +1551,65 @@ DFA<pair<T1, T2>> intersect_dfa(DFA<T1> dfa1, DFA<T2> dfa2) {
   };
   DFA<pair<T1, T2>> returnDFA(Q, q0, Delta, F);
   return returnDFA;
+}
+
+bool test_subset_dfa() {
+  int passed = 0;
+  int failed = 0;
+
+  DFA<int> acceptEvenNumbers([](int qi) { return qi == 0 || qi == 1; }, 0,
+                             [](int qi, Character c) {
+                               if (c == char1) {
+                                 return 1;
+                               } else {
+                                 return 0;
+                               }
+                             },
+                             [](int qi) { return qi == 0; });
+
+  DFA<int> acceptEvenLength([](int qi) { return qi == 0 || qi == 1; }, 0,
+                            [](int qi, Character c) {
+                              if (qi == 0) {
+                                return 1;
+                              } else {
+                                return 0;
+                              }
+                            },
+                            [](int qi) { return qi == 0; });
+
+  DFA<int> acceptIfHasZero([](int qi) { return qi == 0 || qi == 1; }, 0,
+                           [](int qi, Character c) {
+                             if (qi == 1) {
+                               return 1;
+                             } else if (c == char0) {
+                               return 1;
+                             } else {
+                               return 0;
+                             }
+                           },
+                           [](int qi) { return qi == 1; });
+
+  subset_dfa(acceptEvenNumbers, acceptEvenLength, binaryAlpha) == false
+      ? passed++
+      : failed++;
+
+  subset_dfa(acceptIfHasZero, acceptEvenLength, binaryAlpha) == true ? passed++
+                                                                     : failed++;
+
+  if (failed != 0) {
+    cout << "Failed " << failed << " DFA subset tests" << endl;
+  }
+  return failed == 0;
+}
+
+template <typename T1, typename T2>
+bool subset_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
+  DFA<T2> inverseY = inverse_dfa(y);
+  DFA<pair<T1, T2>> intersectDFA = intersect_dfa(x, inverseY);
+  String result = find_string(intersectDFA, alpha);
+  String string(alpha);
+  if (string.size() == 0) {
+    return false;
+  }
+  return true;
 }
