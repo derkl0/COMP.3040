@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -c -g -Og -Wall -pedantic -std=c++17
-OBJ = main.o Character.o Alphabet.o String.o DFA.o
+OBJ = main.o Character.o Alphabet.o String.o DFA.o NFA.o
 DEPS = 
 LIBS =
 EXE = foundations_kiesling
