@@ -22,6 +22,7 @@ bool test_union_dfa();
 bool test_intersect_dfa();
 bool test_subset_dfa();
 bool test_equal_dfa();
+bool test_manual_equal_dfa();
 
 void init_globals();
 
@@ -119,6 +120,7 @@ int main(void) {
   test_intersect_dfa() ? passed++ : failed++;
   test_subset_dfa() ? passed++ : failed++;
   test_equal_dfa() ? passed++ : failed++;
+  test_manual_equal_dfa() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -1786,4 +1788,40 @@ bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
     return true;
   }
   return false;
+}
+
+bool test_manual_equal_dfa() {
+  int passed = 0;
+  int failed = 0;
+
+  DFA<int> acceptEvenNumbers([](int qi) { return qi == 0 || qi == 1; }, 0,
+                             [](int qi, Character c) {
+                               if (c == char1) {
+                                 return 1;
+                               } else {
+                                 return 0;
+                               }
+                             },
+                             [](int qi) { return qi == 0; });
+
+  DFA<int> acceptOddNumbers([](int qi) { return qi == 0 || qi == 1; }, 0,
+                            [](int qi, Character c) {
+                              if (c == char1) {
+                                return 1;
+                              } else {
+                                return 0;
+                              }
+                            },
+                            [](int qi) { return qi == 1; });
+
+  DFA<int> acceptEvenInverse = inverse_dfa(acceptEvenNumbers);
+
+  equal_dfa(acceptEvenInverse, acceptOddNumbers, binaryAlpha) == true
+      ? passed++
+      : failed++;
+
+  if (failed != 0) {
+    cout << "Failed " << failed << " DFA manual equality tests" << endl;
+  }
+  return failed == 0;
 }
