@@ -16,10 +16,13 @@ class String {
   friend std::ostream& operator<<(std::ostream& out, const String& string);
   Character operator[](int i);
   bool operator==(String right);
+  void setFail() { failed = true; }
+  bool hasFailed() { return failed; }
 
  private:
   Alphabet _alpha;
   std::vector<Character> _characters;
+  bool failed = false;
 };
 
 #endif

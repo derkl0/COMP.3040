@@ -1607,9 +1607,8 @@ bool subset_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
   DFA<T2> inverseY = inverse_dfa(y);
   DFA<pair<T1, T2>> intersectDFA = intersect_dfa(x, inverseY);
   String result = find_string(intersectDFA, alpha);
-  String string(alpha);
-  if (string.length() == 0) {
-    return false;
+  if (result.hasFailed()) {
+    return true;
   }
-  return true;
+  return false;
 }

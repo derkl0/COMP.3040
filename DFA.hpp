@@ -4,6 +4,7 @@
 #include <algorithm>   // std::find
 #include <functional>  // std::function
 #include <iostream>    // Testing only
+#include <optional>    // stdd::nullopt
 #include <utility>     // std::pair
 #include <vector>      // std::vector
 #include "Alphabet.hpp"
@@ -59,30 +60,31 @@ class DFA {
     typename vector<State>::iterator it;
     it = find(seen.begin(), seen.end(), qi);
 
+    // have I been to this state yet?
     if (it != seen.end()) {
-      string1.pop_back();
+      string1.setFail();
       return string1;
     }
-
+    // am I at an accepting state?
     else if (F(qi)) {
       return string1;
     }
 
+    // what's next?
     else {
-      seen.push_back(qi);
-      String string3(alpha);
+      seen.push_back(qi);  // record current
       for (int i = 0; i < alpha.size(); i++) {
-        State qn = Delta(qi, alpha[i]);
         String string2 = string1;
         string2.add(alpha[i]);
-        seen.push_back(qi);
-        string3 = search_algo(seen, qn, string2, alpha);
-        if (accepts(string3)) {
-          break;
+        State qn = Delta(qi, alpha[i]);
+        String string3 = search_algo(seen, qn, string2, alpha);
+        if (!string3.hasFailed()) {
+          return string3;
         }
       }
-      return string3;
     }
+    string1.setFail();
+    return string1;
   }
 };
 
