@@ -5,6 +5,7 @@
 #include "Alphabet.hpp"
 #include "Character.hpp"
 #include "DFA.hpp"
+#include "NFA.hpp"
 #include "String.hpp"
 using namespace std;
 
@@ -23,6 +24,7 @@ bool test_intersect_dfa();
 bool test_subset_dfa();
 bool test_equal_dfa();
 bool test_manual_equal_dfa();
+bool test_nfa();
 
 void init_globals();
 
@@ -54,6 +56,7 @@ bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha);
 
 Alphabet binaryAlpha;
 Alphabet alphabet;
+Character _epsilon(-1);
 Character char0(0);
 Character char1(1);
 Character char2(2);
@@ -121,6 +124,7 @@ int main(void) {
   test_subset_dfa() ? passed++ : failed++;
   test_equal_dfa() ? passed++ : failed++;
   test_manual_equal_dfa() ? passed++ : failed++;
+  test_nfa() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -1822,6 +1826,44 @@ bool test_manual_equal_dfa() {
 
   if (failed != 0) {
     cout << "Failed " << failed << " DFA manual equality tests" << endl;
+  }
+  return failed == 0;
+}
+
+bool test_nfa() {
+  int passed = 0;
+  int failed = 0;
+  function<bool(Character)> Q = [](Character state) {
+    if (state == _a || state == _b || state == _c || state == _d) {
+      return true;
+    }
+    return false;
+  };
+  function<vector<Character>(Character, Character)> delta = [](Character state,
+                                                               Character next) {
+    vector<Character> d;
+    if (next == _epsilon) return d;
+    if (state == _a) {
+      d.push_back(_a);
+      if (next == 1) {
+        d.push_back(_b);
+      }
+    } else if (state == _b) {
+      d.push_back(_c);
+    } else if (state == _c) {
+      d.push_back(_d);
+    }
+    return d;
+  };
+  function<bool(Character)> F = [](Character state) {
+    if (state == _d) {
+      return true;
+    }
+    return false;
+  };
+  NFA<Character> thirdFromEndIsOne(Q, _a, delta, F);
+  if (failed != 0) {
+    cout << "Failed " << failed << " NFA tests" << endl;
   }
   return failed == 0;
 }
