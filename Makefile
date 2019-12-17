@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -c -g -Og -Wall -Werror -pedantic -std=c++17
+CFLAGS = -c -g -Og -Wall -pedantic -std=c++17
 OBJ = main.o Character.o Alphabet.o String.o DFA.o
 DEPS = 
 LIBS =
