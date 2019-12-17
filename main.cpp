@@ -1589,12 +1589,51 @@ bool test_subset_dfa() {
                            },
                            [](int qi) { return qi == 1; });
 
+  DFA<char> acceptWithJason(
+      [](char qi) {
+        return qi == '!' || qi == 'J' || qi == 'A' || qi == 'S' || qi == 'O' ||
+               qi == 'N';
+      },
+      '!',
+      [](char qi, Character c) {
+        switch (qi) {
+          case 'J':
+            return c == _a ? 'A' : '!';
+          case 'A':
+            return c == _s ? 'S' : '!';
+          case 'S':
+            return c == _o ? 'O' : '!';
+          case 'O':
+            return c == _n ? 'N' : '!';
+          case 'N':
+            return 'N';
+          default:
+            return c == _j ? 'J' : '!';
+        }
+      },
+      [](char qi) { return qi == 'N'; });
+
+  DFA<char> acceptWithJ([](char qi) { return qi == '!' || qi == 'J'; }, '!',
+                        [](char qi, Character c) {
+                          switch (qi) {
+                            case 'J':
+                              return 'J';
+                            default:
+                              return c == _j ? 'J' : '!';
+                          }
+                        },
+                        [](char qi) { return qi == 'J'; });
+
   subset_dfa(acceptEvenNumbers, acceptEvenLength, binaryAlpha) == false
       ? passed++
       : failed++;
 
-  subset_dfa(acceptIfHasZero, acceptEvenLength, binaryAlpha) == true ? passed++
-                                                                     : failed++;
+  subset_dfa(acceptIfHasZero, acceptEvenLength, binaryAlpha) == false
+      ? passed++
+      : failed++;
+
+  subset_dfa(acceptWithJason, acceptWithJ, alphabet) == true ? passed++
+                                                             : failed++;
 
   if (failed != 0) {
     cout << "Failed " << failed << " DFA subset tests" << endl;
