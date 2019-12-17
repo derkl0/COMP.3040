@@ -21,6 +21,7 @@ bool test_inverse_dfa();
 bool test_union_dfa();
 bool test_intersect_dfa();
 bool test_subset_dfa();
+bool test_equal_dfa();
 
 void init_globals();
 
@@ -46,6 +47,9 @@ DFA<pair<T1, T2>> intersect_dfa(DFA<T1> dfa1, DFA<T2> dfa2);
 
 template <typename T1, typename T2>
 bool subset_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha);
+
+template <typename T1, typename T2>
+bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha);
 
 Alphabet binaryAlpha;
 Alphabet alphabet;
@@ -114,6 +118,7 @@ int main(void) {
   test_union_dfa() ? passed++ : failed++;
   test_intersect_dfa() ? passed++ : failed++;
   test_subset_dfa() ? passed++ : failed++;
+  test_equal_dfa() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -1647,6 +1652,137 @@ bool subset_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
   DFA<pair<T1, T2>> intersectDFA = intersect_dfa(x, inverseY);
   String result = find_string(intersectDFA, alpha);
   if (result.hasFailed()) {
+    return true;
+  }
+  return false;
+}
+
+bool test_equal_dfa() {
+  int passed = 0;
+  int failed = 0;
+
+  DFA<int> acceptEvenNumbers([](int qi) { return qi == 0 || qi == 1; }, 0,
+                             [](int qi, Character c) {
+                               if (c == char1) {
+                                 return 1;
+                               } else {
+                                 return 0;
+                               }
+                             },
+                             [](int qi) { return qi == 0; });
+
+  DFA<int> acceptEvenLength([](int qi) { return qi == 0 || qi == 1; }, 0,
+                            [](int qi, Character c) {
+                              if (qi == 0) {
+                                return 1;
+                              } else {
+                                return 0;
+                              }
+                            },
+                            [](int qi) { return qi == 0; });
+
+  DFA<int> acceptIfHasZero([](int qi) { return qi == 0 || qi == 1; }, 0,
+                           [](int qi, Character c) {
+                             if (qi == 1) {
+                               return 1;
+                             } else if (c == char0) {
+                               return 1;
+                             } else {
+                               return 0;
+                             }
+                           },
+                           [](int qi) { return qi == 1; });
+
+  DFA<int> acceptIfHasZero2([](int qi) { return qi == 0 || qi == 1; }, 0,
+                            [](int qi, Character c) {
+                              if (qi == 1) {
+                                return 1;
+                              } else if (c == char0) {
+                                return 1;
+                              } else {
+                                return 0;
+                              }
+                            },
+                            [](int qi) { return qi == 1; });
+
+  DFA<char> acceptWithJason(
+      [](char qi) {
+        return qi == '!' || qi == 'J' || qi == 'A' || qi == 'S' || qi == 'O' ||
+               qi == 'N';
+      },
+      '!',
+      [](char qi, Character c) {
+        switch (qi) {
+          case 'J':
+            return c == _a ? 'A' : '!';
+          case 'A':
+            return c == _s ? 'S' : '!';
+          case 'S':
+            return c == _o ? 'O' : '!';
+          case 'O':
+            return c == _n ? 'N' : '!';
+          case 'N':
+            return 'N';
+          default:
+            return c == _j ? 'J' : '!';
+        }
+      },
+      [](char qi) { return qi == 'N'; });
+
+  DFA<char> acceptWithJ([](char qi) { return qi == '!' || qi == 'J'; }, '!',
+                        [](char qi, Character c) {
+                          switch (qi) {
+                            case 'J':
+                              return 'J';
+                            default:
+                              return c == _j ? 'J' : '!';
+                          }
+                        },
+                        [](char qi) { return qi == 'J'; });
+
+  DFA<char> acceptWithJ2([](char qi) { return qi == '!' || qi == 'J'; }, '!',
+                         [](char qi, Character c) {
+                           switch (qi) {
+                             case 'J':
+                               return 'J';
+                             default:
+                               return c == _j ? 'J' : '!';
+                           }
+                         },
+                         [](char qi) { return qi == 'J'; });
+
+  equal_dfa(acceptEvenNumbers, acceptEvenLength, binaryAlpha) == false
+      ? passed++
+      : failed++;
+
+  equal_dfa(acceptIfHasZero, acceptEvenLength, binaryAlpha) == false ? passed++
+                                                                     : failed++;
+
+  equal_dfa(acceptWithJason, acceptWithJ, alphabet) == false ? passed++
+                                                             : failed++;
+
+  equal_dfa(acceptWithJ, acceptWithJ2, alphabet) == true ? passed++ : failed++;
+
+  equal_dfa(acceptIfHasZero, acceptIfHasZero2, binaryAlpha) == true ? passed++
+                                                                    : failed++;
+
+  if (failed != 0) {
+    cout << "Failed " << failed << " DFA equality tests" << endl;
+  }
+  return failed == 0;
+}
+
+template <typename T1, typename T2>
+bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
+  DFA<T2> inverseY = inverse_dfa(y);
+  DFA<pair<T1, T2>> intersectDFA1 = intersect_dfa(x, inverseY);
+
+  DFA<T1> inverseX = inverse_dfa(x);
+  DFA<pair<T2, T1>> intersectDFA2 = intersect_dfa(y, inverseX);
+
+  String result1 = find_string(intersectDFA1, alpha);
+  String result2 = find_string(intersectDFA2, alpha);
+  if (result1.hasFailed() && result2.hasFailed()) {
     return true;
   }
   return false;
