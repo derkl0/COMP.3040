@@ -64,6 +64,12 @@ class TraceTree;
 template <class State>
 class TraceTree {
  public:
+  TraceTree(State state, Character transition1, bool status1,
+            vector<TraceTree> children1)
+      : state(state),
+        transition(transition),
+        status(status),
+        children(children){};
   State state;
   Character transition;
   bool status;
