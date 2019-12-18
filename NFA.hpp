@@ -120,7 +120,7 @@ void printTraceTree(TraceTree<State> tree) {
 
 template <class State>
 bool backtrack_help(NFA<State> nfa, String string, State qi) {
-  set<State> epsilon = nfa.Delta(qi, Character(-1));
+  vector<State> epsilon = nfa.Delta(qi, Character(-1));
   for (auto i = epsilon.begin(); i != epsilon.end(); i++) {
     if (backtrack_help(nfa, string, *i)) {
       return true;
@@ -129,7 +129,7 @@ bool backtrack_help(NFA<State> nfa, String string, State qi) {
   int size = string.length();
   if (size > 0) {
     Character ch = string.front();
-    set<State> next = nfa.Delta(qi, ch);
+    vector<State> next = nfa.Delta(qi, ch);
     string.pop_front();
     for (auto i = next.begin(); i != next.end(); i++) {
       if (backtrack_help(nfa, string, *i)) {

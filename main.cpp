@@ -26,6 +26,7 @@ bool test_equal_dfa();
 bool test_manual_equal_dfa();
 bool test_nfa();
 bool test_trace_trees();
+bool test_backtracking();
 
 void init_globals();
 
@@ -127,6 +128,7 @@ int main(void) {
   test_manual_equal_dfa() ? passed++ : failed++;
   test_nfa() ? passed++ : failed++;
   test_trace_trees() ? passed++ : failed++;
+  test_backtracking() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -1992,6 +1994,49 @@ bool test_trace_trees() {
 
   printTraceTree(forking(thirdFromEndIsOne, epsilonTestOne));
   cout << endl;
+
+  if (failed != 0) {
+    cout << "Failed " << failed << " trace tree tests" << endl;
+  }
+  return failed == 0;
+}
+
+bool test_backtracking() {
+  int passed = 0;
+  int failed = 0;
+
+  function<bool(Character)> Q = [](Character state) {
+    return state == _a || state == _b || state == _c || state == _d;
+  };
+
+  function<vector<Character>(Character, Character)> delta = [](Character state,
+                                                               Character next) {
+    vector<Character> d;
+    if (next == _epsilon) return d;
+    if (state == _a) {
+      d.push_back(_a);
+      if (next == 1) {
+        d.push_back(_b);
+      }
+    } else if (state == _b) {
+      d.push_back(_c);
+    } else if (state == _c) {
+      d.push_back(_d);
+    }
+    return d;
+  };
+
+  function<bool(Character)> F = [](Character state) { return state == _d; };
+
+  NFA<Character> thirdFromEndIsOne(Q, _a, delta, F);
+  String testOne = binaryAlpha.lexi(13);
+  String testTwo = binaryAlpha.lexi(11);
+  String testThree = binaryAlpha.lexi(12);
+  String testFour = binaryAlpha.lexi(2);
+  backtracking(thirdFromEndIsOne, testOne) == true ? passed++ : failed++;
+  backtracking(thirdFromEndIsOne, testTwo) == true ? passed++ : failed++;
+  backtracking(thirdFromEndIsOne, testThree) == true ? passed++ : failed++;
+  backtracking(thirdFromEndIsOne, testFour) == false ? passed++ : failed++;
 
   if (failed != 0) {
     cout << "Failed " << failed << " trace tree tests" << endl;
