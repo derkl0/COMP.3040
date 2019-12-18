@@ -58,4 +58,16 @@ NFA<State> dfa_to_nfa(DFA<State> dfa) {
   return nfa;
 }
 
+template <class State>
+class TraceTree;
+
+template <class State>
+class TraceTree {
+ public:
+  State state;
+  Character transition;
+  bool status;
+  vector<TraceTree*> children;
+};
+
 #endif
