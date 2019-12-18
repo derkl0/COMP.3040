@@ -1793,7 +1793,7 @@ bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
   }
   return false;
 }
-
+#include <typeinfo>
 bool test_manual_equal_dfa() {
   int passed = 0;
   int failed = 0;
@@ -1858,6 +1858,16 @@ bool test_nfa() {
   function<bool(Character)> F = [](Character state) { return state == _d; };
 
   NFA<Character> thirdFromEndIsOne(Q, _a, delta, F);
+
+  vector<pair<Character, Character>> thirdValidTestOne;
+  thirdValidTestOne.push_back(make_pair(_a, _epsilon));
+  thirdValidTestOne.push_back(make_pair(_a, char0));
+  thirdValidTestOne.push_back(make_pair(_b, char1));
+  thirdValidTestOne.push_back(make_pair(_c, char0));
+  thirdValidTestOne.push_back(make_pair(_d, char0));
+
+  thirdFromEndIsOne.oracle(thirdValidTestOne) == true ? passed++ : failed++;
+  // cout << typeid(thirdValidTestOne).name() << endl;
 
   function<bool(Character)> eQ = [](Character state) {
     return state == _a || state == _b;

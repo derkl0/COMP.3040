@@ -8,6 +8,7 @@
 // #include <utility>     // std::pair
 #include <vector>  // std::vector
 #include "Alphabet.hpp"
+#include "DFA.hpp"
 #include "String.hpp"
 using namespace std;
 
@@ -22,6 +23,23 @@ class NFA {
   NFA(function<bool(State)> Q, State q0,
       function<vector<State>(State, Character)> Delta, function<bool(State)> F)
       : Q(Q), q0(q0), Delta(Delta), F(F){};
+
+  bool oracle(vector<pair<State, Character>> trace) {
+    if (trace.size() == 0) {
+      return true;
+    }
+
+    for (int i = 1; i < trace.size(); i++) {
+      vector<State> d = Delta(trace[i - 1].first, trace[i].second);
+
+      typename vector<State>::iterator it;
+      it = find(d.begin(), d.end(), trace[i].first);
+      if (it == d.end()) {
+        return false;
+      }
+    }
+    return true;
+  }
 };
 
 template <class State>
