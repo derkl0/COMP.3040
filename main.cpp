@@ -1833,12 +1833,11 @@ bool test_manual_equal_dfa() {
 bool test_nfa() {
   int passed = 0;
   int failed = 0;
+
   function<bool(Character)> Q = [](Character state) {
-    if (state == _a || state == _b || state == _c || state == _d) {
-      return true;
-    }
-    return false;
+    return state == _a || state == _b || state == _c || state == _d;
   };
+
   function<vector<Character>(Character, Character)> delta = [](Character state,
                                                                Character next) {
     vector<Character> d;
@@ -1855,13 +1854,30 @@ bool test_nfa() {
     }
     return d;
   };
-  function<bool(Character)> F = [](Character state) {
-    if (state == _d) {
-      return true;
-    }
-    return false;
-  };
+
+  function<bool(Character)> F = [](Character state) { return state == _d; };
+
   NFA<Character> thirdFromEndIsOne(Q, _a, delta, F);
+
+  function<bool(Character)> eQ = [](Character state) {
+    return state == _a || state == _b;
+  };
+
+  function<vector<Character>(Character, Character)> eDelta =
+      [](Character state, Character next) {
+        vector<Character> d;
+        if (state == _a && next == -1) {
+          d.push_back(_b);
+          return d;
+        }
+        d.push_back(_a);
+        return d;
+      };
+
+  function<bool(Character)> eF = [](Character state) { return state == _d; };
+
+  NFA<Character> passWithEpsilon(eQ, _a, eDelta, eF);
+
   if (failed != 0) {
     cout << "Failed " << failed << " NFA tests" << endl;
   }
