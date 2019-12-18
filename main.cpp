@@ -1866,8 +1866,26 @@ bool test_nfa() {
   thirdValidTestOne.push_back(make_pair(_c, char0));
   thirdValidTestOne.push_back(make_pair(_d, char0));
 
+  vector<pair<Character, Character>> thirdValidTestTwo;
+  thirdValidTestTwo.push_back(make_pair(_a, _epsilon));
+  thirdValidTestTwo.push_back(make_pair(_a, char0));
+  thirdValidTestTwo.push_back(make_pair(_a, char1));
+  thirdValidTestTwo.push_back(make_pair(_a, char0));
+  thirdValidTestTwo.push_back(make_pair(_a, char1));
+  thirdValidTestTwo.push_back(make_pair(_a, char0));
+  thirdValidTestTwo.push_back(make_pair(_b, char1));
+  thirdValidTestTwo.push_back(make_pair(_c, char1));
+  thirdValidTestTwo.push_back(make_pair(_d, char1));
+
+  vector<pair<Character, Character>> thirdValidTestThree;
+  thirdValidTestThree.push_back(make_pair(_a, _epsilon));
+  thirdValidTestThree.push_back(make_pair(_a, char0));
+  thirdValidTestThree.push_back(make_pair(_b, char0));
+  thirdValidTestThree.push_back(make_pair(_c, char1));
+
   thirdFromEndIsOne.oracle(thirdValidTestOne) == true ? passed++ : failed++;
-  // cout << typeid(thirdValidTestOne).name() << endl;
+  thirdFromEndIsOne.oracle(thirdValidTestTwo) == true ? passed++ : failed++;
+  thirdFromEndIsOne.oracle(thirdValidTestThree) == false ? passed++ : failed++;
 
   function<bool(Character)> eQ = [](Character state) {
     return state == _a || state == _b;
@@ -1888,8 +1906,32 @@ bool test_nfa() {
 
   NFA<Character> passWithEpsilon(eQ, _a, eDelta, eF);
 
+  vector<pair<Character, Character>> passWithEpsilonTestOne;
+  passWithEpsilonTestOne.push_back(make_pair(_a, _epsilon));
+  passWithEpsilonTestOne.push_back(make_pair(_a, char0));
+  passWithEpsilonTestOne.push_back(make_pair(_a, char1));
+  passWithEpsilonTestOne.push_back(make_pair(_a, char0));
+  passWithEpsilonTestOne.push_back(make_pair(_b, _epsilon));
+
+  vector<pair<Character, Character>> passWithEpsilonTestTwo;
+  passWithEpsilonTestTwo.push_back(make_pair(_a, _epsilon));
+  passWithEpsilonTestTwo.push_back(make_pair(_a, char0));
+  passWithEpsilonTestTwo.push_back(make_pair(_a, char1));
+  passWithEpsilonTestTwo.push_back(make_pair(_a, char1));
+  passWithEpsilonTestTwo.push_back(make_pair(_a, char1));
+  passWithEpsilonTestTwo.push_back(make_pair(_a, char0));
+  passWithEpsilonTestTwo.push_back(make_pair(_a, char1));
+  passWithEpsilonTestTwo.push_back(make_pair(_a, char0));
+  passWithEpsilonTestTwo.push_back(make_pair(_b, _epsilon));
+
+  passWithEpsilon.oracle(passWithEpsilonTestOne) == true ? passed++ : failed++;
+  passWithEpsilon.oracle(passWithEpsilonTestTwo) == true ? passed++ : failed++;
+
   if (failed != 0) {
-    cout << "Failed " << failed << " NFA tests" << endl;
+    cout << "Failed " << failed
+         << " NFA "
+            "tests"
+         << endl;
   }
   return failed == 0;
 }
