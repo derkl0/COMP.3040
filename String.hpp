@@ -11,6 +11,7 @@ class String {
   void add(Character c);
   void pushfront(Character c);
   void pop_back();
+  void pop_front();
   Character front();
   int length();
   friend std::ostream& operator<<(std::ostream& out, const String& string);

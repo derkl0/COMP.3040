@@ -1,12 +1,13 @@
 #include "String.hpp"
 #include <iostream>
+#include <stdexcept>
 using namespace std;
 
 void String::add(Character c) {
   if (_alpha.contains(c)) {
     _characters.push_back(c);
   } else {
-    throw "Error: Your character is not in the alphabet";
+    throw invalid_argument("Error: Your character is not in the alphabet");
   }
 }
 
@@ -15,7 +16,7 @@ void String::pushfront(Character c) {
     vector<Character>::iterator it = _characters.begin();
     _characters.insert(it, c);
   } else {
-    throw "Error: Your character is not in the alphabet";
+    throw invalid_argument("Error: Your character is not in the alphabet");
   }
 }
 
@@ -23,7 +24,15 @@ void String::pop_back() {
   if (_characters.size() > 0) {
     _characters.pop_back();
   } else {
-    throw "Error: Out of range";
+    throw out_of_range("Index to pop_back is out of range");
+  }
+}
+
+void String::pop_front() {
+  if (_characters.size() > 0) {
+    _characters.erase(_characters.begin());
+  } else {
+    throw out_of_range("Index to pop_front is out of range");
   }
 }
 
@@ -31,7 +40,7 @@ Character String::front() {
   if (_characters.size() > 0) {
     return _characters[0];
   } else {
-    throw "Error: Out of range";
+    throw out_of_range("Index to front is out of range");
   }
 }
 

@@ -25,6 +25,7 @@ bool test_subset_dfa();
 bool test_equal_dfa();
 bool test_manual_equal_dfa();
 bool test_nfa();
+bool test_trace_trees();
 
 void init_globals();
 
@@ -125,6 +126,7 @@ int main(void) {
   test_equal_dfa() ? passed++ : failed++;
   test_manual_equal_dfa() ? passed++ : failed++;
   test_nfa() ? passed++ : failed++;
+  test_trace_trees() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -1793,7 +1795,7 @@ bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
   }
   return false;
 }
-#include <typeinfo>
+
 bool test_manual_equal_dfa() {
   int passed = 0;
   int failed = 0;
@@ -1928,10 +1930,71 @@ bool test_nfa() {
   passWithEpsilon.oracle(passWithEpsilonTestTwo) == true ? passed++ : failed++;
 
   if (failed != 0) {
-    cout << "Failed " << failed
-         << " NFA "
-            "tests"
-         << endl;
+    cout << "Failed " << failed << " NFA tests" << endl;
+  }
+  return failed == 0;
+}
+
+bool test_trace_trees() {
+  int passed = 0;
+  int failed = 0;
+
+  function<bool(Character)> Q = [](Character state) {
+    return state == _a || state == _b || state == _c || state == _d;
+  };
+
+  function<vector<Character>(Character, Character)> delta = [](Character state,
+                                                               Character next) {
+    vector<Character> d;
+    if (next == _epsilon) return d;
+    if (state == _a) {
+      d.push_back(_a);
+      if (next == 1) {
+        d.push_back(_b);
+      }
+    } else if (state == _b) {
+      d.push_back(_c);
+    } else if (state == _c) {
+      d.push_back(_d);
+    }
+    return d;
+  };
+
+  function<bool(Character)> F = [](Character state) { return state == _d; };
+
+  NFA<Character> thirdFromEndIsOne(Q, _a, delta, F);
+  String testOne = binaryAlpha.lexi(13);
+  printTraceTree(forking(thirdFromEndIsOne, testOne));
+  cout << endl;
+
+  function<bool(Character)> eQ = [](Character state) {
+    return state == _a || state == _b;
+  };
+
+  function<vector<Character>(Character, Character)> eDelta =
+      [](Character state, Character next) {
+        vector<Character> d;
+        if (state == _a && next == -1) {
+          d.push_back(_b);
+          return d;
+        }
+        d.push_back(_a);
+        return d;
+      };
+
+  function<bool(Character)> eF = [](Character state) { return state == _d; };
+
+  NFA<Character> passWithEpsilon(eQ, _a, eDelta, eF);
+
+  String epsilonTestOne(binaryAlpha);
+  epsilonTestOne.add(char0);
+  epsilonTestOne.add(char1);
+
+  printTraceTree(forking(thirdFromEndIsOne, epsilonTestOne));
+  cout << endl;
+
+  if (failed != 0) {
+    cout << "Failed " << failed << " trace tree tests" << endl;
   }
   return failed == 0;
 }
