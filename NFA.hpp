@@ -73,7 +73,7 @@ class TraceTree {
   State state;
   Character transition;
   bool status;
-  vector<TraceTree*> children;
+  vector<TraceTree> children;
 };
 
 #endif
