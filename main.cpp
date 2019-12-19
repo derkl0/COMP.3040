@@ -28,6 +28,7 @@ bool test_nfa();
 bool test_trace_trees();
 bool test_backtracking();
 bool test_union_nfa();
+bool test_concat_nfa();
 
 void init_globals();
 
@@ -105,6 +106,7 @@ int main(void) {
   test_trace_trees() ? passed++ : failed++;
   test_backtracking() ? passed++ : failed++;
   test_union_nfa() ? passed++ : failed++;
+  test_concat_nfa() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -2035,14 +2037,22 @@ bool test_concat_nfa() {
   test2.add(_j);
   test2.add(_a);
   test2.add(_s);
+  test2.add(_z);
+  test2.add(_q);
+  test2.add(_w);
   test2.add(_o);
   test2.add(_n);
+  test2.add(_j);
+  test2.add(_a);
   test2.add(_s);
+  test2.add(_o);
+  test2.add(_n);
+  test2.add(_z);
   test2.add(_q);
   test2.add(_w);
 
   backtracking(nfaConcat, test1) == true ? passed++ : failed++;
-  backtracking(nfaConcat, test2) == false ? passed++ : failed++;
+  backtracking(nfaConcat, test2) == true ? passed++ : failed++;
 
   if (failed != 0) {
     cout << "Failed " << failed << " NFA union tests" << endl;

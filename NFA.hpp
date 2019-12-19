@@ -1,12 +1,8 @@
 #ifndef NFA_HPP
 #define NFA_HPP
 
-// #include <algorithm>   // find
 #include <functional>  // function
-// #include <iostream>    // Testing only
-// #include <optional>    // stdd::nullopt
-// #include <utility>     // pair
-#include <vector>  // vector
+#include <vector>      // vector
 #include "Alphabet.hpp"
 #include "DFA.hpp"
 #include "String.hpp"
