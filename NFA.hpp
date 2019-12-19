@@ -44,16 +44,16 @@ class NFA {
 
 template <class State>
 NFA<State> dfa_to_nfa(DFA<State> dfa) {
-  function<State(State state, Character)> delta = [dfa](State state,
-                                                        Character next) {
+  function<vector<State>(State, Character)> delta = [dfa](State state,
+                                                          Character next) {
     vector<State> d;
     if (next != Character(-1)) {
-      d.push_back(dfa.Delta(next));
+      d.push_back(dfa.Delta(state, next));
     }
     return d;
   };
 
-  NFA<State> nfa(dfa.Sigma, dfa.Q, delta, dfa.q0, dfa.F);
+  NFA<State> nfa(dfa.Q, dfa.q0, delta, dfa.F);
 
   return nfa;
 }

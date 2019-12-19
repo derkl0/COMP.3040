@@ -27,6 +27,7 @@ bool test_manual_equal_dfa();
 bool test_nfa();
 bool test_trace_trees();
 bool test_backtracking();
+bool test_union_nfa();
 
 void init_globals();
 
@@ -55,6 +56,10 @@ bool subset_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha);
 
 template <typename T1, typename T2>
 bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha);
+
+template <typename T1, typename T2>
+NFA<pair<int, pair<optional<T1>, optional<T2>>>> union_nfa(NFA<T1> x,
+                                                           NFA<T2> y);
 
 Alphabet binaryAlpha;
 Alphabet alphabet;
@@ -129,6 +134,7 @@ int main(void) {
   test_nfa() ? passed++ : failed++;
   test_trace_trees() ? passed++ : failed++;
   test_backtracking() ? passed++ : failed++;
+  test_union_nfa() ? passed++ : failed++;
   cout << "Tests: Passed: " << passed << " Failed: " << failed
        << " Total: " << passed + failed << endl;
   return 0;
@@ -2040,6 +2046,108 @@ bool test_backtracking() {
 
   if (failed != 0) {
     cout << "Failed " << failed << " trace tree tests" << endl;
+  }
+  return failed == 0;
+}
+
+enum side { START, LEFT, RIGHT };
+
+template <typename T1, typename T2>
+NFA<pair<int, pair<optional<T1>, optional<T2>>>> union_nfa(NFA<T1> x,
+                                                           NFA<T2> y) {
+  pair<int, pair<optional<T1>, optional<T2>>> start = {START,
+                                                       {nullopt, nullopt}};
+
+  function<vector<pair<int, pair<optional<T1>, optional<T2>>>>(
+      pair<int, pair<optional<T1>, optional<T2>>>, Character)>
+      delta = [x, y, start](pair<int, pair<optional<T1>, optional<T2>>> state,
+                            Character next) {
+        vector<pair<int, pair<optional<T1>, optional<T2>>>> v;
+        if (state == start && next == -1) {
+          v.push_back({1, {x.q0, nullopt}});
+          v.push_back({2, {nullopt, y.q0}});
+        } else if (state.first == LEFT && state.second.first != nullopt) {
+          vector<T1> vTemp = x.Delta(state.second.first.value(), next);
+          for (auto i = vTemp.begin(); i != vTemp.end(); i++) {
+            v.push_back({LEFT, {*i, nullopt}});
+          }
+        } else if (state.first == RIGHT && state.second.second != nullopt) {
+          vector<T2> vTemp = y.Delta(state.second.second.value(), next);
+          for (auto i = vTemp.begin(); i != vTemp.end(); i++) {
+            v.push_back({RIGHT, {nullopt, *i}});
+          }
+        }
+        return v;
+      };
+
+  function<bool(pair<int, pair<optional<T1>, optional<T2>>>)> Q =
+      [x, y, start](pair<int, pair<optional<T1>, optional<T2>>> state) {
+        if (state == start) {
+          return true;
+        } else if (state.first == LEFT && state.second.first != nullopt) {
+          return x.Q(state.second.first.value());
+        } else if (state.first == RIGHT && state.second.second != nullopt) {
+          return y.Q(state.second.second.value());
+        }
+        return false;
+      };
+
+  function<bool(pair<int, pair<optional<T1>, optional<T2>>>)> F =
+      [x, y](pair<int, pair<optional<T1>, optional<T2>>> state) {
+        if (state.first == LEFT && state.second.first != nullopt) {
+          return x.F(state.second.first.value());
+        } else if (state.first == RIGHT && state.second.second != nullopt) {
+          return y.F(state.second.second.value());
+        }
+        return false;
+      };
+
+  return NFA<pair<int, pair<optional<T1>, optional<T2>>>>(Q, start, delta, F);
+}
+
+bool test_union_nfa() {
+  int passed = 0;
+  int failed = 0;
+
+  function<Character(Character, Character)> delta1 =
+      [](Character state, Character next) { return next == 0 ? _a : _b; };
+
+  function<bool(Character)> Q1 = [](Character state) {
+    return state == _a || state == _b;
+  };
+
+  function<bool(Character)> F1 = [](Character state) { return state == _a; };
+
+  function<Character(Character, Character)> delta2 =
+      [](Character state, Character next) { return state == _a ? _b : _a; };
+
+  function<bool(Character)> Q2 = [](Character state) {
+    return state == _a || state == _b;
+  };
+  function<bool(Character)> F2 = [](Character state) { return state == _a; };
+
+  DFA<Character> dfa1(Q1, _a, delta1, F1);
+  DFA<Character> dfa2(Q2, _a, delta2, F2);
+
+  auto nfa1 = dfa_to_nfa(dfa1);
+  auto nfa2 = dfa_to_nfa(dfa2);
+  auto nfaUnion = union_nfa(nfa1, nfa2);
+
+  // backtracking(nfaUnion, epsilon) == true ? passed++ : failed++;
+  backtracking(nfaUnion, binaryAlpha.lexi(1)) == true ? passed++ : failed++;
+  backtracking(nfaUnion, binaryAlpha.lexi(2)) == false ? passed++ : failed++;
+  backtracking(nfaUnion, binaryAlpha.lexi(3)) == true ? passed++ : failed++;
+  backtracking(nfaUnion, binaryAlpha.lexi(4)) == true ? passed++ : failed++;
+  backtracking(nfaUnion, binaryAlpha.lexi(5)) == true ? passed++ : failed++;
+  backtracking(nfaUnion, binaryAlpha.lexi(6)) == true ? passed++ : failed++;
+  backtracking(nfaUnion, binaryAlpha.lexi(7)) == true ? passed++ : failed++;
+  backtracking(nfaUnion, binaryAlpha.lexi(8)) == false ? passed++ : failed++;
+  backtracking(nfaUnion, binaryAlpha.lexi(9)) == true ? passed++ : failed++;
+  backtracking(nfaUnion, binaryAlpha.lexi(10)) == false ? passed++ : failed++;
+  backtracking(nfaUnion, binaryAlpha.lexi(11)) == true ? passed++ : failed++;
+
+  if (failed != 0) {
+    cout << "Failed " << failed << " NFA union tests" << endl;
   }
   return failed == 0;
 }
