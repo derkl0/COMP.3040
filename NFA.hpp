@@ -32,7 +32,7 @@ class NFA {
     for (unsigned int i = 1; i < trace.size(); i++) {
       vector<State> d = Delta(trace[i - 1].first, trace[i].second);
 
-      typename vector<State>::iterator it;
+      class vector<State>::iterator it;
       it = find(d.begin(), d.end(), trace[i].first);
       if (it == d.end()) {
         return false;
@@ -150,7 +150,7 @@ bool backtracking(NFA<State> nfa, String string) {
 
 enum side { START, LEFT, RIGHT };
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 NFA<pair<int, pair<optional<T1>, optional<T2>>>> union_nfa(NFA<T1> x,
                                                            NFA<T2> y) {
   pair<int, pair<optional<T1>, optional<T2>>> start = {START,

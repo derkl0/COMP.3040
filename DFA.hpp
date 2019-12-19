@@ -57,7 +57,7 @@ class DFA {
  private:
   String search_algo(vector<State> seen, State qi, String string1,
                      Alphabet alpha) {
-    typename vector<State>::iterator it;
+    class vector<State>::iterator it;
     it = find(seen.begin(), seen.end(), qi);
 
     // have I been to this state yet?
@@ -88,7 +88,7 @@ class DFA {
   }
 };
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
   DFA<T2> inverseY = inverse_dfa(y);
   DFA<pair<T1, T2>> intersectDFA1 = intersect_dfa(x, inverseY);
@@ -104,7 +104,7 @@ bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
   return false;
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 DFA<pair<T1, T2>> intersect_dfa(DFA<T1> dfa1, DFA<T2> dfa2) {
   function<bool(pair<T1, T2>)> Q = [dfa1, dfa2](pair<T1, T2> qi) {
     return dfa1.Q(qi.first) || dfa2.Q(qi.second);
@@ -124,7 +124,7 @@ DFA<pair<T1, T2>> intersect_dfa(DFA<T1> dfa1, DFA<T2> dfa2) {
   return returnDFA;
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 bool subset_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
   DFA<T2> inverseY = inverse_dfa(y);
   DFA<pair<T1, T2>> intersectDFA = intersect_dfa(x, inverseY);
@@ -135,7 +135,7 @@ bool subset_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
   return false;
 }
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 DFA<pair<T1, T2>> union_dfa(DFA<T1> dfa1, DFA<T2> dfa2) {
   function<bool(pair<T1, T2>)> Q = [dfa1, dfa2](pair<T1, T2> qi) {
     return dfa1.Q(qi.first) || dfa2.Q(qi.second);
@@ -155,29 +155,29 @@ DFA<pair<T1, T2>> union_dfa(DFA<T1> dfa1, DFA<T2> dfa2) {
   return returnDFA;
 }
 
-template <typename T>
+template <class T>
 String find_string(DFA<T> dfa, Alphabet alpha) {
   return dfa.find_string(alpha);
 }
 
-template <typename T>
+template <class T>
 DFA<T> inverse_dfa(DFA<T> dfa) {
   function<bool(T)> Fprime = [dfa](T qi) { return !dfa.F(qi); };
   DFA<T> returnDFA(dfa.Q, dfa.q0, dfa.Delta, Fprime);
   return returnDFA;
 }
 
-template <typename T>
+template <class T>
 bool is_accepted_in_dfa(DFA<T> dfa, String string) {
   return dfa.accepts(string);
 }
 
-template <typename T>
+template <class T>
 vector<pair<T, Character>> accepted_states(DFA<T> dfa, String string) {
   return dfa.accepts_with_states(dfa, string);
 }
 
-DFA<int> charDFA(Character dfaChar) {
+static DFA<int> charDFA(Character dfaChar) {
   DFA<int> dfa([](int qi) { return qi == 0 || qi == 1 || qi == 2; }, 0,
                [dfaChar](int qi, Character c) {
                  if (c == dfaChar && qi == 0) {
