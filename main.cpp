@@ -1964,3 +1964,88 @@ bool test_union_nfa() {
   }
   return failed == 0;
 }
+
+bool test_concat_nfa() {
+  int passed = 0;
+  int failed = 0;
+
+  function<bool(Character)> Q = [](Character state) {
+    return state == _a || state == _b || state == _c || state == _d;
+  };
+
+  function<vector<Character>(Character, Character)> delta = [](Character state,
+                                                               Character next) {
+    vector<Character> d;
+    if (next == _epsilon) return d;
+    if (state == _a) {
+      d.push_back(_a);
+      if (next == _z) {
+        d.push_back(_b);
+      }
+    } else if (state == _b) {
+      d.push_back(_c);
+    } else if (state == _c) {
+      d.push_back(_d);
+    }
+    return d;
+  };
+
+  function<bool(Character)> F = [](Character state) { return state == _d; };
+
+  NFA<Character> thirdFromEndIsZ(Q, _a, delta, F);
+
+  DFA<char> acceptWithJason(
+      [](char qi) {
+        return qi == '!' || qi == 'J' || qi == 'A' || qi == 'S' || qi == 'O' ||
+               qi == 'N';
+      },
+      '!',
+      [](char qi, Character c) {
+        switch (qi) {
+          case 'J':
+            return c == _a ? 'A' : '!';
+          case 'A':
+            return c == _s ? 'S' : '!';
+          case 'S':
+            return c == _o ? 'O' : '!';
+          case 'O':
+            return c == _n ? 'N' : '!';
+          case 'N':
+            return 'N';
+          default:
+            return c == _j ? 'J' : '!';
+        }
+      },
+      [](char qi) { return qi == 'N'; });
+
+  auto jasonNFA = dfa_to_nfa(acceptWithJason);
+  auto nfaConcat = concat_nfa(jasonNFA, thirdFromEndIsZ);
+
+  String test1(alphabet);
+  test1.add(_j);
+  test1.add(_a);
+  test1.add(_s);
+  test1.add(_o);
+  test1.add(_n);
+  test1.add(_z);
+  test1.add(_q);
+  test1.add(_w);
+
+  String test2(alphabet);
+  test2.add(_j);
+  test2.add(_a);
+  test2.add(_s);
+  test2.add(_o);
+  test2.add(_n);
+  test2.add(_s);
+  test2.add(_q);
+  test2.add(_w);
+
+  backtracking(nfaConcat, test1) == true ? passed++ : failed++;
+  backtracking(nfaConcat, test2) == false ? passed++ : failed++;
+
+  if (failed != 0) {
+    cout << "Failed " << failed << " NFA union tests" << endl;
+  }
+  return failed == 0;
+}
