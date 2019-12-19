@@ -31,36 +31,6 @@ bool test_union_nfa();
 
 void init_globals();
 
-DFA<int> charDFA(Character dfaChar);
-
-template <typename T>
-bool is_accepted_in_dfa(DFA<T> dfa, String string);
-
-template <typename T>
-vector<pair<T, Character>> accepted_states(DFA<T> dfa, String string);
-
-template <typename T>
-String find_string(DFA<T> dfa, Alphabet alpha);
-
-template <typename T>
-DFA<T> inverse_dfa(DFA<T> dfa);
-
-template <typename T1, typename T2>
-DFA<pair<T1, T2>> union_dfa(DFA<T1> dfa1, DFA<T2> dfa2);
-
-template <typename T1, typename T2>
-DFA<pair<T1, T2>> intersect_dfa(DFA<T1> dfa1, DFA<T2> dfa2);
-
-template <typename T1, typename T2>
-bool subset_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha);
-
-template <typename T1, typename T2>
-bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha);
-
-template <typename T1, typename T2>
-NFA<pair<int, pair<optional<T1>, optional<T2>>>> union_nfa(NFA<T1> x,
-                                                           NFA<T2> y);
-
 Alphabet binaryAlpha;
 Alphabet alphabet;
 Character _epsilon(-1);
@@ -233,19 +203,6 @@ bool oneCharDFA() {
     cout << "Failed onlyChar" << endl;
   }
   return failed == 0;
-}
-
-DFA<int> charDFA(Character dfaChar) {
-  DFA<int> dfa([](int qi) { return qi == 0 || qi == 1 || qi == 2; }, 0,
-               [dfaChar](int qi, Character c) {
-                 if (c == dfaChar && qi == 0) {
-                   return 1;
-                 } else {
-                   return 2;
-                 }
-               },
-               [](int qi) { return qi == 1; });
-  return dfa;
 }
 
 bool onlyEpsilon() {
@@ -756,11 +713,6 @@ bool test_dfa_accepts_string() {
   return failed == 0;
 }
 
-template <typename T>
-bool is_accepted_in_dfa(DFA<T> dfa, String string) {
-  return dfa.accepts(string);
-}
-
 bool test_accepted_states() {
   int passed = 0;
   int failed = 0;
@@ -859,11 +811,6 @@ bool test_accepted_states() {
   return failed == 0;
 }
 
-template <typename T>
-vector<pair<T, Character>> accepted_states(DFA<T> dfa, String string) {
-  return dfa.accepts_with_states(dfa, string);
-}
-
 bool test_find_strings() {
   int passed = 0;
   int failed = 0;
@@ -953,11 +900,6 @@ bool test_find_strings() {
     cout << "Failed " << failed << " tests to find string" << endl;
   }
   return failed == 0;
-}
-
-template <typename T>
-String find_string(DFA<T> dfa, Alphabet alpha) {
-  return dfa.find_string(alpha);
 }
 
 bool test_inverse_dfa() {
@@ -1187,13 +1129,6 @@ bool test_inverse_dfa() {
   return failed == 0;
 }
 
-template <typename T>
-DFA<T> inverse_dfa(DFA<T> dfa) {
-  function<bool(T)> Fprime = [dfa](T qi) { return !dfa.F(qi); };
-  DFA<T> returnDFA(dfa.Q, dfa.q0, dfa.Delta, Fprime);
-  return returnDFA;
-}
-
 bool test_union_dfa() {
   int failed = 0;
   int passed = 0;
@@ -1361,26 +1296,6 @@ bool test_union_dfa() {
     cout << "Failed " << failed << " DFA inverse" << endl;
   }
   return failed == 0;
-}
-
-template <typename T1, typename T2>
-DFA<pair<T1, T2>> union_dfa(DFA<T1> dfa1, DFA<T2> dfa2) {
-  function<bool(pair<T1, T2>)> Q = [dfa1, dfa2](pair<T1, T2> qi) {
-    return dfa1.Q(qi.first) || dfa2.Q(qi.second);
-  };
-  pair<T1, T2> q0(dfa1.q0, dfa2.q0);
-  function<pair<T1, T2>(pair<T1, T2>, Character)> Delta =
-      [dfa1, dfa2](pair<T1, T2> qi, Character c) {
-        T1 qi_1 = dfa1.Delta(qi.first, c);
-        T2 qi_2 = dfa2.Delta(qi.second, c);
-        pair<T1, T2> returnPair(qi_1, qi_2);
-        return returnPair;
-      };
-  function<bool(pair<T1, T2>)> F = [dfa1, dfa2](pair<T1, T2> qi) {
-    return dfa1.F(qi.first) || dfa2.F(qi.second);
-  };
-  DFA<pair<T1, T2>> returnDFA(Q, q0, Delta, F);
-  return returnDFA;
 }
 
 bool test_intersect_dfa() {
@@ -1554,26 +1469,6 @@ bool test_intersect_dfa() {
   return failed == 0;
 }
 
-template <typename T1, typename T2>
-DFA<pair<T1, T2>> intersect_dfa(DFA<T1> dfa1, DFA<T2> dfa2) {
-  function<bool(pair<T1, T2>)> Q = [dfa1, dfa2](pair<T1, T2> qi) {
-    return dfa1.Q(qi.first) || dfa2.Q(qi.second);
-  };
-  pair<T1, T2> q0(dfa1.q0, dfa2.q0);
-  function<pair<T1, T2>(pair<T1, T2>, Character)> Delta =
-      [dfa1, dfa2](pair<T1, T2> qi, Character c) {
-        T1 qi_1 = dfa1.Delta(qi.first, c);
-        T2 qi_2 = dfa2.Delta(qi.second, c);
-        pair<T1, T2> returnPair(qi_1, qi_2);
-        return returnPair;
-      };
-  function<bool(pair<T1, T2>)> F = [dfa1, dfa2](pair<T1, T2> qi) {
-    return dfa1.F(qi.first) && dfa2.F(qi.second);
-  };
-  DFA<pair<T1, T2>> returnDFA(Q, q0, Delta, F);
-  return returnDFA;
-}
-
 bool test_subset_dfa() {
   int passed = 0;
   int failed = 0;
@@ -1660,17 +1555,6 @@ bool test_subset_dfa() {
     cout << "Failed " << failed << " DFA subset tests" << endl;
   }
   return failed == 0;
-}
-
-template <typename T1, typename T2>
-bool subset_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
-  DFA<T2> inverseY = inverse_dfa(y);
-  DFA<pair<T1, T2>> intersectDFA = intersect_dfa(x, inverseY);
-  String result = find_string(intersectDFA, alpha);
-  if (result.hasFailed()) {
-    return true;
-  }
-  return false;
 }
 
 bool test_equal_dfa() {
@@ -1786,22 +1670,6 @@ bool test_equal_dfa() {
     cout << "Failed " << failed << " DFA equality tests" << endl;
   }
   return failed == 0;
-}
-
-template <typename T1, typename T2>
-bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
-  DFA<T2> inverseY = inverse_dfa(y);
-  DFA<pair<T1, T2>> intersectDFA1 = intersect_dfa(x, inverseY);
-
-  DFA<T1> inverseX = inverse_dfa(x);
-  DFA<pair<T2, T1>> intersectDFA2 = intersect_dfa(y, inverseX);
-
-  String result1 = find_string(intersectDFA1, alpha);
-  String result2 = find_string(intersectDFA2, alpha);
-  if (result1.hasFailed() && result2.hasFailed()) {
-    return true;
-  }
-  return false;
 }
 
 bool test_manual_equal_dfa() {
@@ -2048,61 +1916,6 @@ bool test_backtracking() {
     cout << "Failed " << failed << " trace tree tests" << endl;
   }
   return failed == 0;
-}
-
-enum side { START, LEFT, RIGHT };
-
-template <typename T1, typename T2>
-NFA<pair<int, pair<optional<T1>, optional<T2>>>> union_nfa(NFA<T1> x,
-                                                           NFA<T2> y) {
-  pair<int, pair<optional<T1>, optional<T2>>> start = {START,
-                                                       {nullopt, nullopt}};
-
-  function<vector<pair<int, pair<optional<T1>, optional<T2>>>>(
-      pair<int, pair<optional<T1>, optional<T2>>>, Character)>
-      delta = [x, y, start](pair<int, pair<optional<T1>, optional<T2>>> state,
-                            Character next) {
-        vector<pair<int, pair<optional<T1>, optional<T2>>>> v;
-        if (state == start && next == -1) {
-          v.push_back({1, {x.q0, nullopt}});
-          v.push_back({2, {nullopt, y.q0}});
-        } else if (state.first == LEFT && state.second.first != nullopt) {
-          vector<T1> vTemp = x.Delta(state.second.first.value(), next);
-          for (auto i = vTemp.begin(); i != vTemp.end(); i++) {
-            v.push_back({LEFT, {*i, nullopt}});
-          }
-        } else if (state.first == RIGHT && state.second.second != nullopt) {
-          vector<T2> vTemp = y.Delta(state.second.second.value(), next);
-          for (auto i = vTemp.begin(); i != vTemp.end(); i++) {
-            v.push_back({RIGHT, {nullopt, *i}});
-          }
-        }
-        return v;
-      };
-
-  function<bool(pair<int, pair<optional<T1>, optional<T2>>>)> Q =
-      [x, y, start](pair<int, pair<optional<T1>, optional<T2>>> state) {
-        if (state == start) {
-          return true;
-        } else if (state.first == LEFT && state.second.first != nullopt) {
-          return x.Q(state.second.first.value());
-        } else if (state.first == RIGHT && state.second.second != nullopt) {
-          return y.Q(state.second.second.value());
-        }
-        return false;
-      };
-
-  function<bool(pair<int, pair<optional<T1>, optional<T2>>>)> F =
-      [x, y](pair<int, pair<optional<T1>, optional<T2>>> state) {
-        if (state.first == LEFT && state.second.first != nullopt) {
-          return x.F(state.second.first.value());
-        } else if (state.first == RIGHT && state.second.second != nullopt) {
-          return y.F(state.second.second.value());
-        }
-        return false;
-      };
-
-  return NFA<pair<int, pair<optional<T1>, optional<T2>>>>(Q, start, delta, F);
 }
 
 bool test_union_nfa() {

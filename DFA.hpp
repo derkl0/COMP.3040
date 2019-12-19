@@ -88,4 +88,106 @@ class DFA {
   }
 };
 
+template <typename T1, typename T2>
+bool equal_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
+  DFA<T2> inverseY = inverse_dfa(y);
+  DFA<pair<T1, T2>> intersectDFA1 = intersect_dfa(x, inverseY);
+
+  DFA<T1> inverseX = inverse_dfa(x);
+  DFA<pair<T2, T1>> intersectDFA2 = intersect_dfa(y, inverseX);
+
+  String result1 = find_string(intersectDFA1, alpha);
+  String result2 = find_string(intersectDFA2, alpha);
+  if (result1.hasFailed() && result2.hasFailed()) {
+    return true;
+  }
+  return false;
+}
+
+template <typename T1, typename T2>
+DFA<pair<T1, T2>> intersect_dfa(DFA<T1> dfa1, DFA<T2> dfa2) {
+  function<bool(pair<T1, T2>)> Q = [dfa1, dfa2](pair<T1, T2> qi) {
+    return dfa1.Q(qi.first) || dfa2.Q(qi.second);
+  };
+  pair<T1, T2> q0(dfa1.q0, dfa2.q0);
+  function<pair<T1, T2>(pair<T1, T2>, Character)> Delta =
+      [dfa1, dfa2](pair<T1, T2> qi, Character c) {
+        T1 qi_1 = dfa1.Delta(qi.first, c);
+        T2 qi_2 = dfa2.Delta(qi.second, c);
+        pair<T1, T2> returnPair(qi_1, qi_2);
+        return returnPair;
+      };
+  function<bool(pair<T1, T2>)> F = [dfa1, dfa2](pair<T1, T2> qi) {
+    return dfa1.F(qi.first) && dfa2.F(qi.second);
+  };
+  DFA<pair<T1, T2>> returnDFA(Q, q0, Delta, F);
+  return returnDFA;
+}
+
+template <typename T1, typename T2>
+bool subset_dfa(DFA<T1> x, DFA<T2> y, Alphabet alpha) {
+  DFA<T2> inverseY = inverse_dfa(y);
+  DFA<pair<T1, T2>> intersectDFA = intersect_dfa(x, inverseY);
+  String result = find_string(intersectDFA, alpha);
+  if (result.hasFailed()) {
+    return true;
+  }
+  return false;
+}
+
+template <typename T1, typename T2>
+DFA<pair<T1, T2>> union_dfa(DFA<T1> dfa1, DFA<T2> dfa2) {
+  function<bool(pair<T1, T2>)> Q = [dfa1, dfa2](pair<T1, T2> qi) {
+    return dfa1.Q(qi.first) || dfa2.Q(qi.second);
+  };
+  pair<T1, T2> q0(dfa1.q0, dfa2.q0);
+  function<pair<T1, T2>(pair<T1, T2>, Character)> Delta =
+      [dfa1, dfa2](pair<T1, T2> qi, Character c) {
+        T1 qi_1 = dfa1.Delta(qi.first, c);
+        T2 qi_2 = dfa2.Delta(qi.second, c);
+        pair<T1, T2> returnPair(qi_1, qi_2);
+        return returnPair;
+      };
+  function<bool(pair<T1, T2>)> F = [dfa1, dfa2](pair<T1, T2> qi) {
+    return dfa1.F(qi.first) || dfa2.F(qi.second);
+  };
+  DFA<pair<T1, T2>> returnDFA(Q, q0, Delta, F);
+  return returnDFA;
+}
+
+template <typename T>
+String find_string(DFA<T> dfa, Alphabet alpha) {
+  return dfa.find_string(alpha);
+}
+
+template <typename T>
+DFA<T> inverse_dfa(DFA<T> dfa) {
+  function<bool(T)> Fprime = [dfa](T qi) { return !dfa.F(qi); };
+  DFA<T> returnDFA(dfa.Q, dfa.q0, dfa.Delta, Fprime);
+  return returnDFA;
+}
+
+template <typename T>
+bool is_accepted_in_dfa(DFA<T> dfa, String string) {
+  return dfa.accepts(string);
+}
+
+template <typename T>
+vector<pair<T, Character>> accepted_states(DFA<T> dfa, String string) {
+  return dfa.accepts_with_states(dfa, string);
+}
+
+DFA<int> charDFA(Character dfaChar) {
+  DFA<int> dfa([](int qi) { return qi == 0 || qi == 1 || qi == 2; }, 0,
+               [dfaChar](int qi, Character c) {
+                 if (c == dfaChar && qi == 0) {
+                   return 1;
+                 } else {
+                   return 2;
+                 }
+               },
+               [](int qi) { return qi == 1; });
+  return dfa;
+}
+
 #endif

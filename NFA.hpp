@@ -148,4 +148,59 @@ bool backtracking(NFA<State> nfa, String string) {
   return backtrack_help(nfa, string, nfa.q0);
 }
 
+enum side { START, LEFT, RIGHT };
+
+template <typename T1, typename T2>
+NFA<pair<int, pair<optional<T1>, optional<T2>>>> union_nfa(NFA<T1> x,
+                                                           NFA<T2> y) {
+  pair<int, pair<optional<T1>, optional<T2>>> start = {START,
+                                                       {nullopt, nullopt}};
+
+  function<vector<pair<int, pair<optional<T1>, optional<T2>>>>(
+      pair<int, pair<optional<T1>, optional<T2>>>, Character)>
+      delta = [x, y, start](pair<int, pair<optional<T1>, optional<T2>>> state,
+                            Character next) {
+        vector<pair<int, pair<optional<T1>, optional<T2>>>> v;
+        if (state == start && next == -1) {
+          v.push_back({1, {x.q0, nullopt}});
+          v.push_back({2, {nullopt, y.q0}});
+        } else if (state.first == LEFT && state.second.first != nullopt) {
+          vector<T1> vTemp = x.Delta(state.second.first.value(), next);
+          for (auto i = vTemp.begin(); i != vTemp.end(); i++) {
+            v.push_back({LEFT, {*i, nullopt}});
+          }
+        } else if (state.first == RIGHT && state.second.second != nullopt) {
+          vector<T2> vTemp = y.Delta(state.second.second.value(), next);
+          for (auto i = vTemp.begin(); i != vTemp.end(); i++) {
+            v.push_back({RIGHT, {nullopt, *i}});
+          }
+        }
+        return v;
+      };
+
+  function<bool(pair<int, pair<optional<T1>, optional<T2>>>)> Q =
+      [x, y, start](pair<int, pair<optional<T1>, optional<T2>>> state) {
+        if (state == start) {
+          return true;
+        } else if (state.first == LEFT && state.second.first != nullopt) {
+          return x.Q(state.second.first.value());
+        } else if (state.first == RIGHT && state.second.second != nullopt) {
+          return y.Q(state.second.second.value());
+        }
+        return false;
+      };
+
+  function<bool(pair<int, pair<optional<T1>, optional<T2>>>)> F =
+      [x, y](pair<int, pair<optional<T1>, optional<T2>>> state) {
+        if (state.first == LEFT && state.second.first != nullopt) {
+          return x.F(state.second.first.value());
+        } else if (state.first == RIGHT && state.second.second != nullopt) {
+          return y.F(state.second.second.value());
+        }
+        return false;
+      };
+
+  return NFA<pair<int, pair<optional<T1>, optional<T2>>>>(Q, start, delta, F);
+}
+
 #endif
